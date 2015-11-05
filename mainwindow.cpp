@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 /**
  * @brief MainWindow::initialiseInMemoryImages Initialises three new QImages into
- * imageBuffer0[]: a red square, a green rectangle, and two white squares.
+ * imageBuffer[]: a red square, a green rectangle, and two white squares.
  */
 void MainWindow::initialiseInMemoryImages() {
     // Initialise each image with a black background.

@@ -13,8 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    qqueuetest.cpp \
+    qreader.cpp \
+    qwriter.cpp \
+    test.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    qqueuetest.h \
+    qreader.h \
+    qwriter.h \
+    test.h
 
 FORMS    += mainwindow.ui
