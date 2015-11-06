@@ -17,12 +17,12 @@ SOURCES += main.cpp\
     qqueuetest.cpp \
     qreader.cpp \
     qwriter.cpp \
-    test.cpp
+    timertester.cpp
 
 HEADERS  += mainwindow.h \
     qqueuetest.h \
     qreader.h \
     qwriter.h \
-    test.h
+    timertester.h
 
 FORMS    += mainwindow.ui

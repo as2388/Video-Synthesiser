@@ -19,6 +19,11 @@ private:
     Ui::MainWindow *ui;
     void paintEvent(QPaintEvent *event);
     void initialiseInMemoryImages();
+    QImage ugen_blankImage(int width, int height);
+    QImage ugen_rectangle(QImage input, int x, int y, int width, int height, uint color = qRgba(255, 255, 255, 255));
+    QImage ugen_add(QImage input0, QImage input1);
+    QImage ugen_blur(QImage input, int strength);
+    QImage ugen_draw(QImage input);
 
 public slots:
     void advanceDisplayedImage();
