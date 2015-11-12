@@ -1,28 +1,23 @@
 #include "mainwindow.h"
 #include <QApplication>
-#include <QDebug>
 
-#include "qqueuetest.h"
-#include "qwriter.h"
-#include "qreader.h"
+#include "boostwriter.h"
+#include "boostreader.h"
 #include "timertester.h"
 
-QWriter writer;
-QReader reader;
 timertester timerTest;
+
+boost::lockfree::queue<int> boostQueue(128);
+BoostWriter bWriter(&boostQueue);
+BoostReader bReader(&boostQueue);
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
     w.show();
 
-//    QObject::connect(&writer, SIGNAL(postNewData(int)), &reader, SLOT(receiveNewData(int)), Qt::QueuedConnection);
-
-//    qDebug() << reader.thread();
-//    qDebug() << writer.thread();
-
-    //reader.start();
-    //writer.start();
+    //bWriter.start();
+    //bReader.start();
 
     //timerTest.begin();
 
