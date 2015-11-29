@@ -28,9 +28,15 @@ void Unit_Ctor(Unit* unit, World* world, float** floatInBuf, float** floatOutBuf
 struct Rectangle: public Unit {
     QImage *inputImage, *outputImage;
     QPainter *copier;
+    uint color;
 };
 void Rectangle_Ctor(Rectangle* unit);
 
+struct AlphaBlend: public Unit {
+    QImage *inputImageUnder, *inputImageOver, *outputImage;
+};
+void AlphaBlend_Ctor(AlphaBlend* unit);
+int blendHelper(double ca, double aa, double cb, double ab);
 
 
 struct Line : public Unit

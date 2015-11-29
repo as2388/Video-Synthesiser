@@ -275,6 +275,7 @@ QImage MainWindow::ugen_draw(QImage input) {
  * by one position, and force a window repaint.
  */
 void MainWindow::advanceDisplayedImage() {
+    world -> mDisplayBuffers[0] -> fill(qRgba(0, 0, 0, 0));
     Synth_Compute(synth);
     this->update();
 }
