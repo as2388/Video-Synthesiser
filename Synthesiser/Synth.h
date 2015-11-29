@@ -13,7 +13,7 @@ struct Synth {
     Unit** mUnits;
 };
 
-void Synth_Ctor(Synth* synth /*, TODO: SynthDef */);
+void Synth_Ctor(Synth* synth, World* world/*, TODO: SynthDef */);
 void Synth_Compute(Synth* synth);
 
 

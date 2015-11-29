@@ -1,11 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "World.h"
 #include <QtGui>
 #include <Synthesiser/Unit.h>
 #include <Synthesiser/Synth.h>
 
 QImage imageBuffer;
 Synth* synth;
+World* world;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -13,52 +15,20 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    world = new World();
+    world -> mDisplayBuffers = new QImage*[1];
+    world -> mDisplayBuffers[0] = &imageBuffer;
+    world -> mNumDisplayBuffers = 1;
+
     imageBuffer = this->ugen_blankImage(100, 100);
-//    imageBuffer = this->ugen_rectangle(imageBuffer, 30, 30, 40, 40, qRgba(0, 255, 0, 255));
-//    imageBuffer = this->ugen_blur(imageBuffer, 4);
-//    imageBuffer = this->ugen_add(imageBuffer, ugen_rectangle(ugen_blankImage(400, 100), 130, 30, 40, 40));
-//    imageBuffer = this->ugen_blur(imageBuffer, 4);
-//    imageBuffer = this->ugen_add(imageBuffer, ugen_rectangle(ugen_blankImage(400, 100), 230, 30, 40, 40));
-//    imageBuffer = this->ugen_blur(imageBuffer, 4);
-//    imageBuffer = this->ugen_add(imageBuffer, ugen_rectangle(ugen_blankImage(400, 100), 330, 30, 40, 40));
-
-    /*imageBuffer = this->ugen_blankImage(400, 100);
-    imageBuffer = this->ugen_rectangle(imageBuffer, 30, 30, 40, 40);
-    imageBuffer = this->ugen_blur(imageBuffer, 4);
-    imageBuffer = this->ugen_rectangle(imageBuffer, 130, 30, 40, 40);
-    imageBuffer = this->ugen_blur(imageBuffer, 4);
-    imageBuffer = this->ugen_rectangle(imageBuffer, 230, 30, 40, 40);
-    imageBuffer = this->ugen_blur(imageBuffer, 4);
-    imageBuffer = this->ugen_rectangle(imageBuffer, 330, 30, 40, 40);*/
-
-    // Add ugen examples
-    //QImage i0 = this -> ugen_blankImage(100, 100);
-    //i0        = this -> ugen_rectangle(i0, 10, 10, 60, 60, qRgba(255, 0, 0, 85));
-    //QImage i1 = this -> ugen_blankImage(100, 100);
-    //i1        = this -> ugen_rectangle(i1, 30, 30, 60, 60, qRgba(0, 0, 255, 170));
-    //Checkerboard
-    //imageBuffer = this -> ugen_add_checkerboard(i0, i1);
-    //Channel add
-    //imageBuffer = this -> ugen_add_simple(i0, i1);
-    //Alpha blend
-    //imageBuffer = this -> ugen_add_alphaBlend(i0, i1);
-    //imageBuffer = this -> ugen_blur(imageBuffer, im 1);
-
-    //imageBuffer = i1;
 
     synth = new Synth();
-    Synth_Ctor(synth);
+    Synth_Ctor(synth, world);
 
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceDisplayedImage()));
     timer->start(100);
-
-    qDebug() << "ready";
-
-    //time_ugen_draw();
-    //time_ugen_blur_strength();
-    //time_ugen_blur_size();
 }
 
 void MainWindow::time_ugen_draw() {
@@ -306,12 +276,6 @@ QImage MainWindow::ugen_draw(QImage input) {
  */
 void MainWindow::advanceDisplayedImage() {
     Synth_Compute(synth);
-
-     
-    QPainter copier(&imageBuffer);
-    copier.drawImage(QPoint(0, 0), *(((Rectangle *)(synth -> mUnits[1])) -> outputImage));
-    //qDebug() << imageBuffer.width();
-
     this->update();
 }
 

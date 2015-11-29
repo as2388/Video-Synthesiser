@@ -6,6 +6,7 @@
 #define VIDEOSYNTH_UNIT_H
 
 #include <qimage.h>
+#include <World.h>
 
 typedef void (*UnitCalcFunc)(struct Unit *inThing, int inNumSamples);
 struct Rate {
@@ -13,6 +14,7 @@ struct Rate {
 };
 
 struct Unit {
+    World *mWorld;
     bool mDone;
     float **mFloatInBuf, **mFloatOutBuf;
     QImage **mImageInBuf, **mImageOutBuf;
@@ -20,7 +22,7 @@ struct Unit {
     UnitCalcFunc mCalcFunc;
 };
 
-void Unit_Ctor(Unit* unit, float** floatInBuf, float** floatOutBuf, QImage** imageInBuf, QImage** imageOutBuf
+void Unit_Ctor(Unit* unit, World* world, float** floatInBuf, float** floatOutBuf, QImage** imageInBuf, QImage** imageOutBuf
 /* TODO: UnitSpec, memory */);
 
 struct Rectangle: public Unit {
@@ -29,6 +31,8 @@ struct Rectangle: public Unit {
 };
 void Rectangle_Ctor(Rectangle* unit);
 
+
+
 struct Line : public Unit
 {
     double mLevel, mSlope;
@@ -36,5 +40,12 @@ struct Line : public Unit
     int mCounter;
 };
 void Line_Ctor(Line* unit);
+
+struct Draw: public Unit
+{
+    QImage *inputImage;
+    QPainter *copier;
+};
+void Draw_Ctor(Draw* draw);
 
 #endif //VIDEOSYNTH_UNIT_H

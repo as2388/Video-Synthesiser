@@ -2,9 +2,10 @@
 // Created by Alexander Simpson on 2015-11-29.
 //
 
+#include <World.h>
 #include "Synth.h"
 
-void Synth_Ctor(Synth* synth /*, TODO: SynthDef */) {
+void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
     float* lineStart = new float(0);
     float* lineEnd = new float(80);
     float* lineSteps = new float(80);
@@ -16,7 +17,7 @@ void Synth_Ctor(Synth* synth /*, TODO: SynthDef */) {
     float** lineOutFloatBuffer = new float*[1];
     lineOutFloatBuffer[0] = lineOut;
     Line* line = new Line();
-    Unit_Ctor(line, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL);
+    Unit_Ctor(line, world, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL);
     Line_Ctor(line);
 
     float* rectX = new float(10);
@@ -37,14 +38,19 @@ void Synth_Ctor(Synth* synth /*, TODO: SynthDef */) {
     QImage** rectOutImageBuffer = new QImage*[1];
     rectOutImageBuffer[0] = rectOutputImage;
     Rectangle* rectangle = new Rectangle();
-    Unit_Ctor(rectangle, rectInFloatBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
+    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
     Rectangle_Ctor(rectangle);
 
-    synth -> mNumberOfUnits = 2;
+    Draw* draw = new Draw();
+    Unit_Ctor(draw, world, NULL, NULL, rectOutImageBuffer, NULL);
+    Draw_Ctor(draw);
+
+    synth -> mNumberOfUnits = 3;
     synth -> mUnits = new Unit*[synth -> mNumberOfUnits];
 
     synth -> mUnits[0] = line;
     synth -> mUnits[1] = rectangle;
+    synth -> mUnits[2] = draw;
 }
 
 inline void Synth_Compute_Unit(Unit* unit)

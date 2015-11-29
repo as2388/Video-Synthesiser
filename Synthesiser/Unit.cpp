@@ -6,7 +6,9 @@
 #include "Unit.h"
 
 
-void Unit_Ctor(Unit* unit, float** floatInBuf, float** floatOutBuf, QImage** imageInBuf, QImage** imageOutBuf) {
+void Unit_Ctor(Unit* unit, World* world, float** floatInBuf, float** floatOutBuf, QImage** imageInBuf, QImage** imageOutBuf) {
+    unit -> mWorld = world;
+
     unit -> mDone = false;
 
     unit -> mFloatInBuf = floatInBuf;
@@ -122,4 +124,16 @@ void Rectangle_Ctor(Rectangle* unit) {
     unit -> outputImage = unit -> mImageOutBuf[0];
 
     unit -> copier = new QPainter(unit -> outputImage);
+}
+
+void Draw_next(Draw* unit, int inNumSamples) {
+    unit -> copier -> drawImage(QPoint(0, 0), *(unit -> inputImage));
+}
+
+void Draw_Ctor(Draw* unit) {
+    SETCALC(Draw_next);
+
+    unit -> inputImage = unit -> mImageInBuf[0];
+
+    unit -> copier = new QPainter(unit -> mWorld -> mDisplayBuffers[0]);
 }
