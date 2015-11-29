@@ -16,7 +16,7 @@ set(SOURCE_FILES
         timertester.h
         ui_mainwindow.h
         ui_mainwindow.cpp
-        Synthesiser/Unit.cpp Synthesiser/Unit.h)
+        Synthesiser/Unit.cpp Synthesiser/Unit.h Synthesiser/Synth.cpp Synthesiser/Synth.h)
 
 add_executable(VideoSynth ${SOURCE_FILES})
 

@@ -2,11 +2,10 @@
 #include "ui_mainwindow.h"
 #include <QtGui>
 #include <Synthesiser/Unit.h>
+#include <Synthesiser/Synth.h>
 
 QImage imageBuffer;
-
-Line* line;
-Rectangle* rectangle;
+Synth* synth;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -47,40 +46,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //imageBuffer = i1;
 
-    float* lineStart = new float(0);
-    float* lineEnd = new float(80);
-    float* lineSteps = new float(80);
-    float* lineOut = new float(0);
-    float** lineInFloatBuffer = new float*[3];
-    lineInFloatBuffer[0] = lineStart;
-    lineInFloatBuffer[1] = lineEnd;
-    lineInFloatBuffer[2] = lineSteps;
-    float** lineOutFloatBuffer = new float*[1];
-    lineOutFloatBuffer[0] = lineOut;
-    line = new Line();
-    Unit_Ctor(line, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL);
-    Line_Ctor(line);
-
-    float* rectX = new float(10);
-    float* rectY = new float(10);
-    float* rectWidth = lineOut;
-    float* rectHeight = new float(80);
-    float** rectInFloatBuffer = new float*[4];
-    rectInFloatBuffer[0] = rectX;
-    rectInFloatBuffer[1] = rectY;
-    rectInFloatBuffer[2] = rectWidth;
-    rectInFloatBuffer[3] = rectHeight;
-    QImage *rectInputImage = new QImage(100, 100, QImage::Format_ARGB32);
-    rectInputImage->fill(qRgba(0, 0, 0, 0));
-    QImage** rectInImageBuffer = new QImage*[1];
-    rectInImageBuffer[0] = rectInputImage;
-    QImage *rectOutputImage = new QImage(100, 100, QImage::Format_ARGB32);
-    rectOutputImage->fill(qRgba(0, 0, 0, 0));
-    QImage** rectOutImageBuffer = new QImage*[1];
-    rectOutImageBuffer[0] = rectOutputImage;
-    rectangle = new Rectangle();
-    Unit_Ctor(rectangle, rectInFloatBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
-    Rectangle_Ctor(rectangle);
+    synth = new Synth();
+    Synth_Ctor(synth);
 
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
@@ -338,12 +305,11 @@ QImage MainWindow::ugen_draw(QImage input) {
  * by one position, and force a window repaint.
  */
 void MainWindow::advanceDisplayedImage() {
-    line -> mCalcFunc(line, 1);
-    rectangle -> mCalcFunc(rectangle, 1);
-    float out = *(line->mFloatOutBuf[0]);
+    Synth_Compute(synth);
 
+     
     QPainter copier(&imageBuffer);
-    copier.drawImage(QPoint(0, 0), *(rectangle -> outputImage));
+    copier.drawImage(QPoint(0, 0), *(((Rectangle *)(synth -> mUnits[1])) -> outputImage));
     //qDebug() << imageBuffer.width();
 
     this->update();
