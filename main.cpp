@@ -4,6 +4,8 @@
 #include "boostwriter.h"
 #include "boostreader.h"
 #include "timertester.h"
+#include "Synthesiser/Unit.h"
+#include <QtDebug>
 
 timertester timerTest;
 
@@ -20,6 +22,8 @@ int main(int argc, char *argv[])
     //bReader.start();
 
     //timerTest.begin();
+
+
 
     return a.exec();
 }

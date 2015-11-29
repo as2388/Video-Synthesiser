@@ -1,8 +1,12 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QtGui>
+#include <Synthesiser/Unit.h>
 
 QImage imageBuffer;
+
+Line* line;
+Rectangle* rectangle;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -10,8 +14,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-//    imageBuffer = this->ugen_blankImage(400, 100);
-//    imageBuffer = this->ugen_rectangle(imageBuffer, 30, 30, 40, 40);
+    imageBuffer = this->ugen_blankImage(100, 100);
+//    imageBuffer = this->ugen_rectangle(imageBuffer, 30, 30, 40, 40, qRgba(0, 255, 0, 255));
 //    imageBuffer = this->ugen_blur(imageBuffer, 4);
 //    imageBuffer = this->ugen_add(imageBuffer, ugen_rectangle(ugen_blankImage(400, 100), 130, 30, 40, 40));
 //    imageBuffer = this->ugen_blur(imageBuffer, 4);
@@ -29,32 +33,159 @@ MainWindow::MainWindow(QWidget *parent) :
     imageBuffer = this->ugen_rectangle(imageBuffer, 330, 30, 40, 40);*/
 
     // Add ugen examples
-    QImage i0 = this -> ugen_blankImage(100, 100);
-    i0        = this -> ugen_rectangle(i0, 10, 10, 60, 60, qRgba(255, 0, 0, 85));
-    QImage i1 = this -> ugen_blankImage(100, 100);
-    i1        = this -> ugen_rectangle(i1, 30, 30, 60, 60, qRgba(0, 0, 255, 170));
+    //QImage i0 = this -> ugen_blankImage(100, 100);
+    //i0        = this -> ugen_rectangle(i0, 10, 10, 60, 60, qRgba(255, 0, 0, 85));
+    //QImage i1 = this -> ugen_blankImage(100, 100);
+    //i1        = this -> ugen_rectangle(i1, 30, 30, 60, 60, qRgba(0, 0, 255, 170));
     //Checkerboard
-    imageBuffer = this -> ugen_add_checkerboard(i0, i1);
+    //imageBuffer = this -> ugen_add_checkerboard(i0, i1);
     //Channel add
-    imageBuffer = this -> ugen_add_simple(i0, i1);
+    //imageBuffer = this -> ugen_add_simple(i0, i1);
     //Alpha blend
-    imageBuffer = this -> ugen_add_alphaBlend(i0, i1);
+    //imageBuffer = this -> ugen_add_alphaBlend(i0, i1);
+    //imageBuffer = this -> ugen_blur(imageBuffer, im 1);
 
     //imageBuffer = i1;
 
+    float* lineStart = new float(0);
+    float* lineEnd = new float(80);
+    float* lineSteps = new float(80);
+    float* lineOut = new float(0);
+    float** lineInFloatBuffer = new float*[3];
+    lineInFloatBuffer[0] = lineStart;
+    lineInFloatBuffer[1] = lineEnd;
+    lineInFloatBuffer[2] = lineSteps;
+    float** lineOutFloatBuffer = new float*[1];
+    lineOutFloatBuffer[0] = lineOut;
+    line = new Line();
+    Unit_Ctor(line, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL);
+    Line_Ctor(line);
 
-
-
+    float* rectX = new float(10);
+    float* rectY = new float(10);
+    float* rectWidth = lineOut;
+    float* rectHeight = new float(80);
+    float** rectInFloatBuffer = new float*[4];
+    rectInFloatBuffer[0] = rectX;
+    rectInFloatBuffer[1] = rectY;
+    rectInFloatBuffer[2] = rectWidth;
+    rectInFloatBuffer[3] = rectHeight;
+    QImage *rectInputImage = new QImage(100, 100, QImage::Format_ARGB32);
+    rectInputImage->fill(qRgba(0, 0, 0, 0));
+    QImage** rectInImageBuffer = new QImage*[1];
+    rectInImageBuffer[0] = rectInputImage;
+    QImage *rectOutputImage = new QImage(100, 100, QImage::Format_ARGB32);
+    rectOutputImage->fill(qRgba(0, 0, 0, 0));
+    QImage** rectOutImageBuffer = new QImage*[1];
+    rectOutImageBuffer[0] = rectOutputImage;
+    rectangle = new Rectangle();
+    Unit_Ctor(rectangle, rectInFloatBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
+    Rectangle_Ctor(rectangle);
 
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceDisplayedImage()));
-    timer->start(1000);
+    timer->start(100);
+
+    qDebug() << "ready";
+
+    //time_ugen_draw();
+    //time_ugen_blur_strength();
+    //time_ugen_blur_size();
 }
+
+void MainWindow::time_ugen_draw() {
+    QString filename="/Users/Alexander/Documnts/time_ugen_draw.csv";
+    QFile file(filename);
+    QTextStream stream(&file);
+
+    if (file.open(QIODevice::WriteOnly))
+    {
+        qDebug() << "file open";
+    } else {
+        qDebug() << "failed to open file";
+    }
+
+    QElapsedTimer stopwatch;
+    QImage image;
+    for (int x = 1; x <= 1000; x++) {
+        image = ugen_blankImage(x, x);
+        stopwatch.restart();
+        for (int times = 0; times < 1000; times++) {
+            image = ugen_rectangle(image, 0, 0, x, x, qRgba(255, 255, 255, 255));
+        }
+        qint64 totalTime = stopwatch.elapsed();
+        stream << x << "," << totalTime << endl;
+        qDebug() << x << "," << totalTime;
+    }
+
+    return;
+}
+
+void MainWindow::time_ugen_blur_size() {
+    QString filename="/Users/Alexander/Documents/time_ugen_blur_size.csv";
+    QFile file(filename);
+    QTextStream stream(&file);
+
+    if (file.open(QIODevice::WriteOnly))
+    {
+        qDebug() << "file open";
+    } else {
+        qDebug() << "failed to open file";
+    }
+
+    QElapsedTimer stopwatch;
+    QImage image;
+    for (int x = 1; x <= 1000; x++) {
+        image = ugen_blankImage(x, x);
+        image = ugen_rectangle(image, 0, 0, x, x, qRgba(255, 255, 255, 255));
+        QImage output = ugen_blankImage(image.width(), image.height());
+        stopwatch.restart();
+        for (int times = 0; times < 1000; times++) {
+            image = ugen_blur(image, output, 3);
+        }
+        qint64 totalTime = stopwatch.elapsed();
+        stream << x << "," << totalTime << endl;
+        qDebug() << x << "," << totalTime;
+    }
+
+    return;
+}
+
+void MainWindow::time_ugen_blur_strength() {
+    QString filename="/Users/Alexander/Documents/time_ugen_blur_strength.csv";
+    QFile file(filename);
+    QTextStream stream(&file);
+
+    if (file.open(QIODevice::WriteOnly))
+    {
+        qDebug() << "file open";
+    } else {
+        qDebug() << "failed to open file";
+    }
+
+    QElapsedTimer stopwatch;
+    QImage image;
+    for (int strength = 1; strength < 20; strength++) {
+        image = ugen_blankImage(800, 600);
+        image = ugen_rectangle(image, 0, 0, 800, 600, qRgba(255, 255, 255, 255));
+        QImage output = ugen_blankImage(image.width(), image.height());
+        stopwatch.restart();
+        for (int times = 0; times < 1000; times++) {
+            image = ugen_blur(image, output, strength);
+        }
+        qint64 totalTime = stopwatch.elapsed();
+        stream << strength << "," << totalTime << endl;
+        qDebug() << strength << "," << totalTime;
+    }
+
+    return;
+}
+
 
 QImage MainWindow::ugen_blankImage(int width, int height) {
     QImage image = QImage(width, height, QImage::Format_ARGB32);
-    image.fill(Qt::GlobalColor::transparent);
+    image.fill(qRgba(0, 0, 0, 0));
 
     return image;
 }
@@ -146,36 +277,42 @@ int MainWindow::blendHelper(double ca, double aa, double cb, double ab) {
     return (int) ((ca * aan + cb * abn * (1.0 - aan)) / (aan + abn * (1.0 - aan)));
 }
 
-QImage MainWindow::ugen_rectangle(QImage input, int x, int y, int width, int height, uint color) {
-    for (int ix = x; ix < x + width; ix++) {
-        for (int iy = y; iy < y + height; iy++) {
-            input.setPixel(ix, iy, color);
+QImage MainWindow::ugen_rectangle(QImage &input, int ix, int iy, int width, int height, uint color) {
+    for (int y = iy; y < iy + height; y++) {
+        uint *line = (uint *) input.scanLine(y);
+        for (int x = ix; x < ix + width; x++) {
+            *(line + x) = color;
         }
     }
 
     return input;
 }
 
-QImage MainWindow::ugen_blur(QImage input, int strength) {
-    QImage output = ugen_blankImage(input.width(), input.height());
-
-    for (int xx = 0; xx < input.width(); xx++) {
-        for (int yy = 0; yy < input.height(); yy++) {
+QImage MainWindow::ugen_blur(QImage input, QImage output, int strength) {
+    for (int yy = 0; yy < input.height(); yy++) {
+        uint *outputLine = (uint *) output.scanLine(yy);
+        for (int xx = 0; xx < input.width(); xx++) {
             int summed = 0;
             uint sumRed = 0;
             uint sumGreen = 0;
             uint sumBlue = 0;
             uint sumAlpha = 0;
 
-            for (int x = -strength + xx; x <= strength + xx; x++) {
-                for (int y = -strength + yy; y <= strength + yy; y++) {
-                    if (x > 0 && y > 0 && x < input.width() && y < input.height()) {
-                        QColor rgb = QColor(input.pixel(x, y));
-                        sumRed += rgb.red();
-                        sumGreen += rgb.green();
-                        sumBlue += rgb.blue();
-                        sumAlpha += qAlpha(input.pixel(x, y));
-                        summed++;
+
+            for (int y = -strength + yy; y <= strength + yy; y++) {
+                if (y > 0 && y < input.height()) {
+                    uint *inputLine = (uint *) input.scanLine(y);
+                    for (int x = -strength + xx; x <= strength + xx; x++) {
+                        if (x > 0 && y > 0 && x < input.width()) {
+                            uint pixel = *(inputLine + x);
+
+                            sumRed += qRed(pixel);
+                            sumGreen += qGreen(pixel);
+                            sumBlue += qBlue(pixel);
+                            sumAlpha += qAlpha(pixel);
+
+                            summed++;
+                        }
                     }
                 }
             }
@@ -185,7 +322,7 @@ QImage MainWindow::ugen_blur(QImage input, int strength) {
             sumBlue /= summed;
             sumAlpha /= summed;
 
-            output.setPixel(xx, yy, qRgba(sumRed, sumGreen, sumBlue, sumAlpha));
+            *(outputLine + xx) = qRgba(sumRed, sumGreen, sumBlue, sumAlpha);
         }
     }
 
@@ -201,7 +338,14 @@ QImage MainWindow::ugen_draw(QImage input) {
  * by one position, and force a window repaint.
  */
 void MainWindow::advanceDisplayedImage() {
-    // TODO: render a new image :)
+    line -> mCalcFunc(line, 1);
+    rectangle -> mCalcFunc(rectangle, 1);
+    float out = *(line->mFloatOutBuf[0]);
+
+    QPainter copier(&imageBuffer);
+    copier.drawImage(QPoint(0, 0), *(rectangle -> outputImage));
+    //qDebug() << imageBuffer.width();
+
     this->update();
 }
 
