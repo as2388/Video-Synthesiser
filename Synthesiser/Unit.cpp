@@ -6,13 +6,19 @@
 #include "Unit.h"
 
 
-void Unit_Ctor(Unit* unit, World* world, float** floatInBuf, float** floatOutBuf, QImage** imageInBuf, QImage** imageOutBuf) {
+void Unit_Ctor(Unit* unit, World* world,
+               float** floatInBuf, float** floatOutBuf,
+               int** intInBuf, int** intOutBuf,
+               QImage** imageInBuf, QImage** imageOutBuf) {
     unit -> mWorld = world;
 
     unit -> mDone = false;
 
     unit -> mFloatInBuf = floatInBuf;
     unit -> mFloatOutBuf = floatOutBuf;
+
+    unit -> mIntInBuf = intInBuf;
+    unit -> mIntOutBuf = intOutBuf;
 
     unit -> mImageInBuf = imageInBuf;
     unit -> mImageOutBuf = imageOutBuf;
@@ -108,11 +114,12 @@ void Rectangle_next(Rectangle* unit, int inNumSamples) {
     int iY = int(ZIN0(1));
     int iWidth = int(ZIN0(2));
     int iHeight = int(ZIN0(3));
+    int iColor = *unit -> mIntInBuf[0];
 
     for (int y = iY; y < iY + iHeight; y++) {
         uint *line = (uint *) unit -> outputImage -> scanLine(y);
         for (int x = iX; x < iX + iWidth; x++) {
-            *(line + x) = unit -> color;
+            *(line + x) = iColor;
         }
     }
 }
@@ -124,6 +131,19 @@ void Rectangle_Ctor(Rectangle* unit) {
     unit -> outputImage = unit -> mImageOutBuf[0];
 
     unit -> copier = new QPainter(unit -> outputImage);
+}
+
+void Color_next(Color* unit, int inNumSamples) {
+    int r = *unit -> mIntInBuf[0];
+    int g = *unit -> mIntInBuf[1];
+    int b = *unit -> mIntInBuf[2];
+    int a = *unit -> mIntInBuf[3];
+
+    *unit -> mIntOutBuf[0] = qRgba(r, g, b, a);
+}
+
+void Color_Ctor(Color* unit) {
+    SETCALC(Color_next);
 }
 
 void AlphaBlend_next(AlphaBlend* unit, int inNumSamples) {

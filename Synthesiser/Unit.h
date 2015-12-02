@@ -17,12 +17,16 @@ struct Unit {
     World *mWorld;
     bool mDone;
     float **mFloatInBuf, **mFloatOutBuf;
+    int **mIntInBuf, **mIntOutBuf;
     QImage **mImageInBuf, **mImageOutBuf;
     struct Rate *mRate;
     UnitCalcFunc mCalcFunc;
 };
 
-void Unit_Ctor(Unit* unit, World* world, float** floatInBuf, float** floatOutBuf, QImage** imageInBuf, QImage** imageOutBuf
+void Unit_Ctor(Unit* unit, World* world,
+               float** floatInBuf, float** floatOutBuf,
+               int** intInBuf, int** intOutBuf,
+               QImage** imageInBuf, QImage** imageOutBuf
 /* TODO: UnitSpec, memory */);
 
 struct Rectangle: public Unit {
@@ -38,6 +42,10 @@ struct AlphaBlend: public Unit {
 void AlphaBlend_Ctor(AlphaBlend* unit);
 int blendHelper(double ca, double aa, double cb, double ab);
 
+struct Color: public Unit {
+
+};
+void Color_Ctor(Color* unit);
 
 struct Line : public Unit
 {

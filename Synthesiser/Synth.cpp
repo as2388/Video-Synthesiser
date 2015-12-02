@@ -17,13 +17,30 @@ void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
     float** lineOutFloatBuffer = new float*[1];
     lineOutFloatBuffer[0] = lineOut;
     Line* line = new Line();
-    Unit_Ctor(line, world, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL);
+    Unit_Ctor(line, world, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL, NULL, NULL);
     Line_Ctor(line);
+
+    int* colorR = new int(255);
+    int* colorG = new int(0);
+    int* colorB = new int(0);
+    int* colorA = new int(127);
+    int** colorInIntBuffer = new int*[4];
+    colorInIntBuffer[0] = colorR;
+    colorInIntBuffer[1] = colorG;
+    colorInIntBuffer[2] = colorB;
+    colorInIntBuffer[3] = colorA;
+    int* colorOut = new int(0);
+    int** colorOutIntBuffer = new int*[1];
+    colorOutIntBuffer[0] = colorOut;
+    Color* color = new Color();
+    Unit_Ctor(color, world, NULL, NULL, colorInIntBuffer, colorOutIntBuffer, NULL, NULL);
+    Color_Ctor(color);
 
     float* rectX = new float(10);
     float* rectY = new float(10);
     float* rectWidth = lineOut; //new float(60);
     float* rectHeight = lineOut; //new float(60);
+    int* rectColor = new int(qRgba(255, 255, 0, 127));
     float** rectInFloatBuffer = new float*[4];
     rectInFloatBuffer[0] = rectX;
     rectInFloatBuffer[1] = rectY;
@@ -38,19 +55,19 @@ void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
     QImage** rectOutImageBuffer = new QImage*[1];
     rectOutImageBuffer[0] = rectOutputImage;
     Rectangle* rectangle = new Rectangle();
-    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
+    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
     Rectangle_Ctor(rectangle);
-    rectangle -> color = qRgba(255, 0, 0, 127);
 
     float* rect2X = new float(30);
     float* rect2Y = new float(30);
     float* rect2Width = lineOut; //new float(60);
     float* rect2Height = lineOut; // new float(60);
-    float** rect2InFloatBuffer = new float*[4];
+    float** rect2InFloatBuffer = new float*[5];
     rect2InFloatBuffer[0] = rect2X;
     rect2InFloatBuffer[1] = rect2Y;
     rect2InFloatBuffer[2] = rect2Width;
     rect2InFloatBuffer[3] = rect2Height;
+    rect2InFloatBuffer[4] = (float*) rectColor;
     QImage *rect2InputImage = new QImage(100, 100, QImage::Format_ARGB32);
     rect2InputImage->fill(qRgba(0, 0, 0, 0));
     QImage** rect2InImageBuffer = new QImage*[1];
@@ -60,9 +77,8 @@ void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
     QImage** rect2OutImageBuffer = new QImage*[1];
     rect2OutImageBuffer[0] = rect2OutputImage;
     Rectangle* rectangle2 = new Rectangle();
-    Unit_Ctor(rectangle2, world, rect2InFloatBuffer, NULL, rect2InImageBuffer, rect2OutImageBuffer);
+    Unit_Ctor(rectangle2, world, rect2InFloatBuffer, NULL, colorOutIntBuffer, NULL, rect2InImageBuffer, rect2OutImageBuffer);
     Rectangle_Ctor(rectangle2);
-    rectangle2 -> color = qRgba(0, 0, 255, 127);
 
     AlphaBlend* alphaBlend = new AlphaBlend();
     QImage** alphaBlendInputImages = new QImage*[2];
@@ -70,22 +86,23 @@ void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
     alphaBlendInputImages[1] = rect2OutImageBuffer[0];
     QImage** alphaBlendOutputImage = new QImage*[1];
     alphaBlendOutputImage[0] = new QImage(100, 100, QImage::Format_ARGB32);
-    Unit_Ctor(alphaBlend, world, NULL, NULL, alphaBlendInputImages, alphaBlendOutputImage);
+    Unit_Ctor(alphaBlend, world, NULL, NULL, NULL, NULL, alphaBlendInputImages, alphaBlendOutputImage);
     AlphaBlend_Ctor(alphaBlend);
 
 
     Draw* draw = new Draw();
-    Unit_Ctor(draw, world, NULL, NULL, alphaBlendOutputImage, NULL);
+    Unit_Ctor(draw, world, NULL, NULL, NULL, NULL, alphaBlendOutputImage, NULL);
     Draw_Ctor(draw);
 
-    synth -> mNumberOfUnits = 5;
+    synth -> mNumberOfUnits = 6;
     synth -> mUnits = new Unit*[synth -> mNumberOfUnits];
 
     synth -> mUnits[0] = line;
-    synth -> mUnits[1] = rectangle;
-    synth -> mUnits[2] = rectangle2;
-    synth -> mUnits[3] = alphaBlend;
-    synth -> mUnits[4] = draw;
+    synth -> mUnits[1] = color;
+    synth -> mUnits[2] = rectangle;
+    synth -> mUnits[3] = rectangle2;
+    synth -> mUnits[4] = alphaBlend;
+    synth -> mUnits[5] = draw;
 }
 
 inline void Synth_Compute_Unit(Unit* unit)
