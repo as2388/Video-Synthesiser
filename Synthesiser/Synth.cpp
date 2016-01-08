@@ -4,9 +4,102 @@
 
 #include <World.h>
 #include "Synth.h"
+#include <stdlib.h>
+
+float randf(float a, float b) {
+
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = b - a;
+    float r = random * diff;
+    return a + r;
+}
 
 void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
-    float* lineStart = new float(0);
+
+
+    float* lineStart = new float(255);
+    float* lineEnd = new float(0);
+    float* lineSteps = new float(15);
+    float* lineOut = new float(0);
+    float** lineInFloatBuffer = new float*[3];
+    lineInFloatBuffer[0] = lineStart;
+    lineInFloatBuffer[1] = lineEnd;
+    lineInFloatBuffer[2] = lineSteps;
+    float** lineOutFloatBuffer = new float*[1];
+    lineOutFloatBuffer[0] = lineOut;
+    Line* line = new Line();
+    Unit_Ctor(line, world, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL, NULL, NULL);
+    Line_Ctor(line);
+
+    int * colorA = new int(0);
+    int** colorABuffer = new int*[1];
+    colorABuffer[0] = colorA;
+    FloatToInt* fi = new FloatToInt();
+    Unit_Ctor(fi, world, lineOutFloatBuffer, NULL, NULL, colorABuffer, NULL, NULL);
+    FloatToInt_Ctor(fi);
+
+    int* colorR = new int(int(randf(80, 255)));
+    int* colorG = new int(int(randf(80, 255)));
+    int* colorB = new int(int(randf(80, 255)));
+    int** colorInIntBuffer = new int*[4];
+    colorInIntBuffer[0] = colorR;
+    colorInIntBuffer[1] = colorG;
+    colorInIntBuffer[2] = colorB;
+    colorInIntBuffer[3] = colorABuffer[0];
+    int* colorOut = new int(0);
+    int** colorOutIntBuffer = new int*[1];
+    colorOutIntBuffer[0] = colorOut;
+    Color* color = new Color();
+    Unit_Ctor(color, world, NULL, NULL, colorInIntBuffer, colorOutIntBuffer, NULL, NULL);
+    Color_Ctor(color);
+
+    float* rectX = new float(randf(0, 370));
+    float* rectY = new float(randf(0, 170));
+    float* rectWidth = new float(randf(15, 50));
+    float* rectHeight = rectWidth;
+    float** rectInFloatBuffer = new float*[4];
+    rectInFloatBuffer[0] = rectX;
+    rectInFloatBuffer[1] = rectY;
+    rectInFloatBuffer[2] = rectWidth;
+    rectInFloatBuffer[3] = rectHeight;
+    QImage *rectInputImage = new QImage(400, 200, QImage::Format_ARGB32);
+    rectInputImage->fill(qRgba(0, 0, 0, 0));
+    QImage** rectInImageBuffer = new QImage*[1];
+    rectInImageBuffer[0] = rectInputImage;
+    QImage *rectOutputImage = new QImage(400, 200, QImage::Format_ARGB32);
+    rectOutputImage->fill(qRgba(0, 0, 0, 0));
+    QImage** rectOutImageBuffer = new QImage*[1];
+    rectOutImageBuffer[0] = rectOutputImage;
+    Rectangle* rectangle = new Rectangle();
+    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
+    Rectangle_Ctor(rectangle);
+
+    AlphaBlend* alphaBlend = new AlphaBlend();
+    QImage** alphaBlendInputImages = new QImage*[2];
+    alphaBlendInputImages[0] = rectOutImageBuffer[0];
+    //alphaBlendInputImages[1] = rect2OutImageBuffer[0];
+    QImage** alphaBlendOutputImage = new QImage*[1];
+    alphaBlendOutputImage[0] = new QImage(400, 200, QImage::Format_ARGB32);
+    Unit_Ctor(alphaBlend, world, NULL, NULL, NULL, NULL, alphaBlendInputImages, alphaBlendOutputImage);
+    AlphaBlend_Ctor(alphaBlend);
+
+
+    Draw* draw = new Draw();
+    Unit_Ctor(draw, world, NULL, NULL, NULL, NULL, rectOutImageBuffer, NULL);
+    Draw_Ctor(draw);
+
+    synth -> mNumberOfUnits = 5;
+    synth -> mUnits = new Unit*[synth -> mNumberOfUnits];
+
+    synth -> mUnits[0] = line;
+    synth -> mUnits[1] = fi;
+    synth -> mUnits[2] = color;
+    synth -> mUnits[3] = rectangle;
+    //synth -> mUnits[3] = rectangle2;
+    //synth -> mUnits[4] = alphaBlend;
+    synth -> mUnits[4] = draw;
+
+/*    float* lineStart = new float(0);
     float* lineEnd = new float(60);
     float* lineSteps = new float(60);
     float* lineOut = new float(0);
@@ -102,7 +195,7 @@ void Synth_Ctor(Synth* synth, World* world /*, TODO: SynthDef */) {
     synth -> mUnits[2] = rectangle;
     synth -> mUnits[3] = rectangle2;
     synth -> mUnits[4] = alphaBlend;
-    synth -> mUnits[5] = draw;
+    synth -> mUnits[5] = draw;*/
 }
 
 inline void Synth_Compute_Unit(Unit* unit)

@@ -47,6 +47,11 @@ struct Color: public Unit {
 };
 void Color_Ctor(Color* unit);
 
+struct FloatToInt: public Unit{
+
+};
+void FloatToInt_Ctor(FloatToInt* unit);
+
 struct Line : public Unit
 {
     double mLevel, mSlope;

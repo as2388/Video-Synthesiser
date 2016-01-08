@@ -10,9 +10,11 @@
 
 class World {
 public:
-    QImage** mDisplayBuffers;
+    QPainter** mDisplayBuffers;
     int mNumDisplayBuffers;
 };
+
+
 
 
 #endif //VIDEOSYNTH_WORLD_H

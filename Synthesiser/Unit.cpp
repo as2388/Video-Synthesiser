@@ -146,6 +146,14 @@ void Color_Ctor(Color* unit) {
     SETCALC(Color_next);
 }
 
+void FloatToInt_next(FloatToInt* unit, int inNumSamples) {
+    *unit -> mIntOutBuf[0] = int(*unit -> mFloatInBuf[0]);
+}
+
+void FloatToInt_Ctor(FloatToInt* unit) {
+    SETCALC(FloatToInt_next);
+}
+
 void AlphaBlend_next(AlphaBlend* unit, int inNumSamples) {
     for (int x = 0; x < unit -> inputImageUnder -> width(); x++) {
         for (int y = 0; y < unit -> inputImageUnder -> height(); y++) {
@@ -191,5 +199,5 @@ void Draw_Ctor(Draw* unit) {
 
     unit -> inputImage = unit -> mImageInBuf[0];
 
-    unit -> copier = new QPainter(unit -> mWorld -> mDisplayBuffers[0]);
+    unit -> copier = unit -> mWorld -> mDisplayBuffers[0];
 }

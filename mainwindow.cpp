@@ -6,7 +6,8 @@
 #include <Synthesiser/Synth.h>
 
 QImage imageBuffer;
-Synth* synth;
+Synth** synths;
+int* timeToReconstruct = new int[5];
 World* world;
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -14,16 +15,21 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    srand(time(0));
+
+    imageBuffer = this->ugen_blankImage(400, 200);
 
     world = new World();
-    world -> mDisplayBuffers = new QImage*[1];
-    world -> mDisplayBuffers[0] = &imageBuffer;
+    world -> mDisplayBuffers = new QPainter*[1];
+    world -> mDisplayBuffers[0] = new QPainter(&imageBuffer);
     world -> mNumDisplayBuffers = 1;
 
-    imageBuffer = this->ugen_blankImage(100, 100);
-
-    synth = new Synth();
-    Synth_Ctor(synth, world);
+    synths = new Synth*[15];
+    for (int i = 0; i < 15; i++) {
+        synths[i] = new Synth();
+        Synth_Ctor(synths[i], world);
+        timeToReconstruct[i] = i;
+    }
 
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
@@ -275,8 +281,16 @@ QImage MainWindow::ugen_draw(QImage input) {
  * by one position, and force a window repaint.
  */
 void MainWindow::advanceDisplayedImage() {
-    world -> mDisplayBuffers[0] -> fill(qRgba(0, 0, 0, 0));
-    Synth_Compute(synth);
+    imageBuffer.fill(qRgba(0, 0, 0, 255));
+    for (int i = 0; i < 15; i++) {
+        timeToReconstruct[i] --;
+        if (timeToReconstruct[i] == 0) {
+            Synth_Ctor(synths[i], world);
+            timeToReconstruct[i] = 15;
+        }
+
+        Synth_Compute(synths[i]);
+    }
     this->update();
 }
 
