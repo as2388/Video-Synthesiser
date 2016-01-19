@@ -7,11 +7,16 @@
 
 
 #include <qimage.h>
+#include <Graph/Graph.h>
 
 class World {
 public:
+    World();
+
     QPainter** mDisplayBuffers;
+    QImage** mImageBuffers;
     int mNumDisplayBuffers;
+    Graph* graph;
 };
 
 

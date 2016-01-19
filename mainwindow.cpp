@@ -2,13 +2,26 @@
 #include "ui_mainwindow.h"
 #include "World.h"
 #include <QtGui>
+#include <stdio.h>
 #include <Synthesiser/Unit.h>
+#include <QDebug>
 #include <Synthesiser/Synth.h>
+#include <Synthesiser/SampleSynths/FadingSquares.h>
+#include <Synthesiser/SampleSynths/Kaleidoscope.h>
 
-QImage imageBuffer;
-Synth** synths;
+QImage** imageBuffer = new QImage*[2];
+//Synth** synths;
 int* timeToReconstruct = new int[5];
 World* world;
+Graph* graph = new Graph();
+QElapsedTimer* frameTimer = new QElapsedTimer();
+
+float randf(float a, float b) {
+    float random = ((float) rand()) / (float) RAND_MAX;
+    float diff = b - a;
+    float r = random * diff;
+    return a + r;
+}
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -17,24 +30,44 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     srand(time(0));
 
-    imageBuffer = this->ugen_blankImage(400, 200);
+    imageBuffer[0] = this->ugen_blankImagePointer(800, 800);
+    imageBuffer[1] = this->ugen_blankImagePointer(800, 800);
+    imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
+    imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
 
     world = new World();
-    world -> mDisplayBuffers = new QPainter*[1];
-    world -> mDisplayBuffers[0] = new QPainter(&imageBuffer);
-    world -> mNumDisplayBuffers = 1;
+    world -> mImageBuffers = imageBuffer;
+    world -> mDisplayBuffers = new QPainter*[2];
+    world -> mDisplayBuffers[0] = new QPainter(imageBuffer[0]);
+    world -> mDisplayBuffers[1] = new QPainter(imageBuffer[1]);
+    world -> mNumDisplayBuffers = 2;
 
-    synths = new Synth*[15];
-    for (int i = 0; i < 15; i++) {
-        synths[i] = new Synth();
-        Synth_Ctor(synths[i], world);
-        timeToReconstruct[i] = i;
-    }
+    Graph* g = new Graph();
+    g->insertAsFirstChildOf(graph, g);
+    Kaleidoscope* kaleidoscope = new Kaleidoscope();
+    Kaleidoscope_Ctor(kaleidoscope, world);
+    g->insertGraphAfter(kaleidoscope, graph);
+    world -> graph -> insertAsFirstChildOf(g, world -> graph);
+
+//    for (int i = 0; i < 15; i++) {
+//        Synth* node = new Synth();
+//        Synth_Ctor(node, world);
+//        world->graph->insertGraphAfter(node, world->graph);
+//    }
+
+    //synths = new Synth*[15];
+    //for (int i = 0; i < 15; i++) {
+    //    synths[i] = new Synth();
+    //    Synth_Ctor(synths[i], world);
+    //    timeToReconstruct[i] = i;
+    //}
 
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceDisplayedImage()));
-    timer->start(100);
+    timer->start(50);
+
+    frameTimer->start();
 }
 
 void MainWindow::time_ugen_draw() {
@@ -125,6 +158,13 @@ void MainWindow::time_ugen_blur_strength() {
     return;
 }
 
+
+QImage* MainWindow::ugen_blankImagePointer(int width, int height) {
+    QImage* image = new QImage(width, height, QImage::Format_ARGB32);
+    image->fill(qRgba(0, 0, 0, 0));
+
+    return image;
+}
 
 QImage MainWindow::ugen_blankImage(int width, int height) {
     QImage image = QImage(width, height, QImage::Format_ARGB32);
@@ -280,18 +320,45 @@ QImage MainWindow::ugen_draw(QImage input) {
  * @brief MainWindow::advanceDisplayedImage Advance the pointer to the image to be rendered
  * by one position, and force a window repaint.
  */
+bool add = true;
 void MainWindow::advanceDisplayedImage() {
-    imageBuffer.fill(qRgba(0, 0, 0, 255));
-    for (int i = 0; i < 15; i++) {
-        timeToReconstruct[i] --;
-        if (timeToReconstruct[i] == 0) {
-            Synth_Ctor(synths[i], world);
-            timeToReconstruct[i] = 15;
-        }
+    frameTimer -> restart();
 
-        Synth_Compute(synths[i]);
+    for (int i = 0; i < (add == true ? 1 : 2); i++) {
+        FadingSquares *node = new FadingSquares();
+
+        int** intParams = new int*[3];
+        intParams[0] = new int(int(randf(80, 255))); // R
+        intParams[1] = new int(int(randf(80, 255))); // G
+        intParams[2] = new int(int(randf(80, 255))); // B
+        intParams[3] = new int(1); // Image buffer to write to
+
+        float** floatParams = new float*[5];
+        floatParams[0] = new float(randf(0, 400 - 80)); // x
+        floatParams[1] = new float(randf(0, 400 - 80)); // y
+        // Move to upper-right half if necessary by mirroring over y = - x
+        if (*floatParams[0] < *floatParams[1]) {
+            float* temp = floatParams[0];
+            floatParams[0] = floatParams[1];
+            floatParams[1] = temp;
+        }
+        floatParams[2] = new float(randf(35, 80)); // width
+        floatParams[3] = floatParams[2]; // height
+        floatParams[4] = new float(15); // length of fade in frames
+        Synth_Ctor(node, world, floatParams, intParams);
+        FadingSquares_Ctor(node);
+        world->graph->insertGraphAfter(node, graph);
     }
+    add = !add;
+
+    imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
+    imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
+
+    //printf("%d\n", world -> graph -> countNodes());
+    world->graph->calc();
     this->update();
+
+    printf("%d\n", frameTimer->elapsed());
 }
 
 MainWindow::~MainWindow()
@@ -307,5 +374,8 @@ void MainWindow::paintEvent(QPaintEvent *event)
 {
     // Draw the image to the screen.
     QPainter painter(this);
-    painter.drawImage(QPointF(0, 10), imageBuffer);
+    painter.drawImage(QPointF(0, 10), *imageBuffer[0]);
+    painter.end();
 }
+
+

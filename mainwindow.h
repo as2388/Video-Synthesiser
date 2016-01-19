@@ -19,6 +19,7 @@ private:
     Ui::MainWindow *ui;
     void paintEvent(QPaintEvent *event);
 
+    QImage* ugen_blankImagePointer(int width, int height);
     QImage ugen_blankImage(int width, int height);
     QImage ugen_add_checkerboard(QImage input0, QImage input1);
     QImage ugen_add_simple(QImage input0, QImage input1);
