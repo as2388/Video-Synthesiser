@@ -1,6 +1,7 @@
 #include "ImageUnits.h"
 #include <Synthesiser/Units/UnitMacros.h>
 #include <QPainter>
+#include <QtGui>
 
 void Rectangle_next(Rectangle* unit, int inNumSamples) {
     unit -> copier -> drawImage(QPoint(0, 0), *(unit -> inputImage));
@@ -85,14 +86,72 @@ void AlphaBlend_Ctor(AlphaBlend* unit) {
     unit -> outputImage = unit -> mImageOutBuf[0];
 }
 
+void Symm8_next(Symm8* unit, int inNumSamples) {
+    // Copy the upper right triangle to the output image's top left quadrant.
+    for (int y = 0; y < unit->outputImage->width() >> 1; y++) {
+        uint *outputLine = (uint *) unit->outputImage->scanLine(y);
+        uint *inputLine = (uint *) unit->inputImage->scanLine(y);
+        for (int x = 0; x < unit->inputImage->width() >> 1; x++) {
+            if (x >= y) {
+                *(outputLine + x) = *(inputLine + x);
+            } else {
+                *(outputLine + x) = unit->inputImage->pixel(y,
+                                                            x); //*(inputLine + (unit->inputImage->width() >> 1) - x);
+            }
+        }
+    }
+
+    // Mirror the upper-left quadrant to the upper-right quadrant
+    for (int y = 0; y < unit->outputImage->width() >> 1; y++) {
+        uint *line = (uint *) unit->outputImage->scanLine(y);
+        for (int x = 0; x < unit->inputImage->width() >> 1; x++) {
+            *(line + unit->inputImage->width() - x) = *(line + x);
+        }
+    }
+
+    // Mirror the upper half to the lower half
+    for (int y = 0; y < unit->outputImage->width() >> 1; y++) {
+        uint *upperLine = (uint *) unit->outputImage->scanLine(y);
+        uint *lowerLine = (uint *) unit->outputImage->scanLine(unit->outputImage->width() - y);
+        for (int x = 0; x < unit->inputImage->width(); x++) {
+            *(lowerLine + x) = *(upperLine + x);
+        }
+    }
+
+}
+
+void Symm8_Ctor(Symm8* unit) {
+    SETCALC(Symm8_next);
+
+    unit->inputImage = unit->mImageInBuf[0];
+    unit->outputImage = unit->mImageOutBuf[0];
+}
+
 void Draw_next(Draw* unit, int inNumSamples) {
-    unit -> copier -> drawImage(QPoint(0, 0), *(unit -> inputImage));
+    unit->mWorld->mDisplayBuffers[*unit->mIntInBuf[0]]->drawImage(QPoint(0, 0), *(unit -> inputImage));
 }
 
 void Draw_Ctor(Draw* unit) {
     SETCALC(Draw_next);
 
     unit -> inputImage = unit -> mImageInBuf[0];
+}
 
-    unit -> copier = unit -> mWorld -> mDisplayBuffers[0];
+void Look_next(Look* unit, int inNumSamples) {
+    //QPainter painter(unit->mImageOutBuf[0]);
+    //painter.drawImage(QPoint(0, 0), *(unit->mWorld->mImageBuffers[1]));
+    //painter.end();
+
+    unit->mImageOutBuf[0] = unit->mWorld->mImageBuffers[1];
+
+    //unit->copier = new QPainter(unit->mImageInBuf[0]);
+
+    //QPainter painter(unit->mImageOutBuf[0]);
+    //unit->copier->drawImage(QPointF(0, 0), *(unit->mWorld->mImageBuffers[1]));
+}
+
+void Look_Ctor(Look* unit) {
+    SETCALC(Look_next);
+
+    //unit ->copier = new QPainter(unit->mImageInBuf[0]);
 }

@@ -18,6 +18,11 @@ struct Color: public Unit {
 };
 void Color_Ctor(Color* unit);
 
+struct Symm8: public Unit {
+    QImage *inputImage, *outputImage;
+};
+void Symm8_Ctor(Symm8* unit);
+
 struct FloatToInt: public Unit{
 
 };
@@ -26,6 +31,11 @@ void FloatToInt_Ctor(FloatToInt* unit);
 struct Draw: public Unit
 {
     QImage *inputImage;
-    QPainter *copier;
 };
 void Draw_Ctor(Draw* draw);
+
+struct Look: public Unit {
+    QImage* outputImage;
+    QPainter* copier;
+};
+void Look_Ctor(Look* look);

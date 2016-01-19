@@ -8,7 +8,7 @@
 #include <qimage.h>
 #include <World.h>
 
-typedef void (*UnitCalcFunc)(struct Unit *inThing, int inNumSamples);
+typedef void (*UnitCalcFunc)(struct Unit *unitToCompute, int inNumSamples);
 struct Rate {
     double mSampleRate; // samples per second
 };
@@ -21,6 +21,10 @@ struct Unit {
     QImage **mImageInBuf, **mImageOutBuf;
     struct Rate *mRate;
     UnitCalcFunc mCalcFunc;
+
+    ~Unit() {
+
+    }
 };
 
 void Unit_Ctor(Unit* unit, World* world,
