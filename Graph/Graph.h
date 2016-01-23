@@ -13,9 +13,9 @@ public:
     Graph* prevSibling;
 
     virtual void calc();
-    void insertGraphAfter(Graph *toInsert, Graph *afterGraph);
+    void appendSibling(Graph *toInsert);
+    void setFirstChild(Graph *toInsert);
     void remove();
-    void insertAsFirstChildOf(Graph *toInsert, Graph *parent);
     int countNodes();
     virtual ~Graph(){}
 };

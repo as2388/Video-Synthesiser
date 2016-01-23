@@ -3,6 +3,7 @@ project(VideoSynth)
 
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DCMAKE_PREFIX_PATH=/usr/local/Cellar/qt5/5.3.1/")
+set(CMAKE_CXX_FLAGS "-O3")
 
 set(SOURCE_FILES
         boostreader.cpp
@@ -17,7 +18,23 @@ set(SOURCE_FILES
         ui_mainwindow.h
         ui_mainwindow.cpp
         Synthesiser/Unit.cpp
-        Synthesiser/Unit.h Synthesiser/Synth.cpp Synthesiser/Synth.h World.cpp World.h Synthesiser/Units/UnitMacros.h Synthesiser/Units/ImageUnits.cpp Synthesiser/Units/ImageUnits.h Synthesiser/Units/FloatUnits.cpp Synthesiser/Units/FloatUnits.h)
+        Synthesiser/Unit.h
+        Synthesiser/Synth.cpp
+        Synthesiser/Synth.h
+        World.cpp
+        World.h
+        Synthesiser/Units/UnitMacros.h
+        Synthesiser/Units/ImageUnits.cpp
+        Synthesiser/Units/ImageUnits.h
+        Synthesiser/Units/FloatUnits.cpp
+        Synthesiser/Units/FloatUnits.h
+        Graph/Graph.cpp
+        Graph/Graph.h
+        Synthesiser/SampleSynths/FadingSquares.cpp
+        Synthesiser/SampleSynths/FadingSquares.h
+        Synthesiser/SampleSynths/Kaleidoscope.cpp
+        Synthesiser/SampleSynths/Kaleidoscope.h
+        Evaluation/UnitEvaluator.cpp Evaluation/UnitEvaluator.h Evaluation/L2Eval.h)
 
 add_executable(VideoSynth ${SOURCE_FILES})
 

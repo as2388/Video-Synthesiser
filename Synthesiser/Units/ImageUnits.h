@@ -7,6 +7,26 @@ struct Rectangle: public Unit {
 };
 void Rectangle_Ctor(Rectangle* unit);
 
+struct RectFast: public Unit {
+
+};
+void RectFast_Ctor(RectFast* unit);
+
+struct CopyImage: public Unit {
+
+};
+void CopyImage_Ctor(CopyImage* unit);
+
+struct CopyImageFast: public Unit {
+
+};
+void CopyImageFast_Ctor(CopyImageFast* unit);
+
+struct CopyImageVeryFast: public Unit {
+
+};
+void CopyImageVeryFast_Ctor(CopyImageVeryFast* unit);
+
 struct AlphaBlend: public Unit {
     QImage *inputImageUnder, *inputImageOver, *outputImage;
 };

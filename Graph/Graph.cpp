@@ -28,19 +28,19 @@ int Graph::countNodes() {
     return count;
 }
 
-void Graph::insertGraphAfter(Graph *toInsert, Graph *afterGraph) {
-    if (afterGraph->nextSibling) {
-        afterGraph->nextSibling->prevSibling = toInsert;
+void Graph::appendSibling(Graph *toInsert) {
+    if (this->nextSibling) {
+        this->nextSibling->prevSibling = toInsert;
     }
-    toInsert->nextSibling = afterGraph->nextSibling;
-    toInsert->parent = afterGraph->parent;
-    afterGraph->nextSibling = toInsert;
-    toInsert->prevSibling = afterGraph;
+    toInsert->nextSibling = this->nextSibling;
+    toInsert->parent = this->parent;
+    this->nextSibling = toInsert;
+    toInsert->prevSibling = this;
 }
 
-void Graph::insertAsFirstChildOf(Graph* toInsert, Graph* parent) {
-    parent->firstChild = toInsert;
-    toInsert->parent = parent;
+void Graph::setFirstChild(Graph *toInsert){
+    this->firstChild = toInsert;
+    toInsert->parent = this;
 }
 
 void Graph::remove() {

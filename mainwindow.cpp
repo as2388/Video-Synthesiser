@@ -28,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
     srand(time(0));
 
     imageBuffer[0] = this->ugen_blankImagePointer(800, 800);
@@ -43,11 +44,11 @@ MainWindow::MainWindow(QWidget *parent) :
     world -> mNumDisplayBuffers = 2;
 
     Graph* g = new Graph();
-    g->insertAsFirstChildOf(graph, g);
+    g->setFirstChild(graph);
     Kaleidoscope* kaleidoscope = new Kaleidoscope();
     Kaleidoscope_Ctor(kaleidoscope, world);
-    g->insertGraphAfter(kaleidoscope, graph);
-    world -> graph -> insertAsFirstChildOf(g, world -> graph);
+    graph->appendSibling(kaleidoscope);
+    world->graph->setFirstChild(g);
 
 //    for (int i = 0; i < 15; i++) {
 //        Synth* node = new Synth();
@@ -324,7 +325,7 @@ bool add = true;
 void MainWindow::advanceDisplayedImage() {
     frameTimer -> restart();
 
-    for (int i = 0; i < (add == true ? 1 : 2); i++) {
+    for (int i = 0; i < (add ? 1 : 2); i++) {
         FadingSquares *node = new FadingSquares();
 
         int** intParams = new int*[3];
@@ -347,7 +348,7 @@ void MainWindow::advanceDisplayedImage() {
         floatParams[4] = new float(15); // length of fade in frames
         Synth_Ctor(node, world, floatParams, intParams);
         FadingSquares_Ctor(node);
-        world->graph->insertGraphAfter(node, graph);
+        graph->appendSibling(node);
     }
     add = !add;
 

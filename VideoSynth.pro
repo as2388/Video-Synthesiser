@@ -24,13 +24,27 @@ TEMPLATE = app
 SOURCES += main.cpp\
         mainwindow.cpp \
     timertester.cpp \
-    boostwriter.cpp \
-    boostreader.cpp
+    Synthesiser/Unit.cpp \
+    Synthesiser/Synth.cpp \
+    World.cpp \
+    Synthesiser/Units/ImageUnits.cpp \
+    Synthesiser/Units/FloatUnits.cpp \
+    Graph/Graph.cpp \
+    Synthesiser/SampleSynths/FadingSquares.cpp \
+    Synthesiser/SampleSynths/Kaleidoscope.cpp \
+    Evaluation/UnitEvaluator.cpp
 
 HEADERS  += mainwindow.h \
     timertester.h \
-    boostwriter.h \
-    boostreader.h
+    Synthesiser/Unit.h \
+    Synthesiser/Synth.h \
+    World.h \
+    Synthesiser/Units/ImageUnits.h \
+    Synthesiser/Units/FloatUnits.h \
+    Graph/Graph.h \
+    Synthesiser/SampleSynths/FadingSquares.h \
+    Synthesiser/SampleSynths/Kaleidoscope.h \
+    Evaluation/UnitEvaluator.h
 
 FORMS    += mainwindow.ui
 

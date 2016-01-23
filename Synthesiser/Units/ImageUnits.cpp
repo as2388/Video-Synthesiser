@@ -29,6 +29,67 @@ void Rectangle_Ctor(Rectangle* unit) {
     unit -> copier = new QPainter(unit -> outputImage);
 }
 
+void RectFast_next(RectFast* unit, int inNumSamples) {
+    int iX = int(ZIN0(0));
+    int iY = int(ZIN0(1));
+    int iWidth = int(ZIN0(2));
+    int iHeight = int(ZIN0(3));
+    int iColor = *unit -> mIntInBuf[0];
+    QImage* output = unit->mImageOutBuf[0];
+
+    for (int y = iY; y < iY + iHeight; y++) {
+        uint *line = (uint *) output->scanLine(y);
+        for (int x = iX; x < iX + iWidth; x++) {
+            *(line + x) = iColor;
+        }
+    }
+}
+void RectFast_Ctor(RectFast* unit) {
+    SETCALC(RectFast_next);
+}
+
+void CopyImage_next(CopyImage* unit) {
+    QImage* input = unit -> mImageInBuf[0];
+    QImage* output = unit -> mImageOutBuf[0];
+    for (int y = 0; y < input->height(); y ++) {
+        uint *inputLine = (uint*) input->scanLine(y);
+        uint *outputLine = (uint*) output->scanLine(y);
+
+        for (int x = 0; x < input->width(); x++) {
+            *(inputLine + x) = *(outputLine + x);
+        }
+    }
+}
+
+void CopyImage_Ctor(CopyImage* unit) {
+    SETCALC(CopyImage_next);
+}
+
+void CopyImageFast_next(CopyImageFast* unit) {
+    QImage* input = unit -> mImageInBuf[0];
+    QImage* output = unit -> mImageOutBuf[0];
+    for (int y = 0; y < input->height(); y ++) {
+        uint *inputLine = (uint*) input->scanLine(y);
+        uint *outputLine = (uint*) output->scanLine(y);
+
+        memcpy(outputLine, inputLine, (size_t) input->bytesPerLine());
+    }
+}
+
+void CopyImageFast_Ctor(CopyImageFast* unit) {
+    SETCALC(CopyImageFast_next);
+}
+
+void CopyImageVeryFast_next(CopyImageVeryFast* unit) {
+    QImage* input = unit -> mImageInBuf[0];
+    QImage* output = unit -> mImageOutBuf[0];
+    memcpy(output->bits(), input->bits(), (size_t) input->bytesPerLine() * input->height());
+}
+
+void CopyImageVeryFast_Ctor(CopyImageVeryFast* unit) {
+    SETCALC(CopyImageVeryFast_next);
+}
+
 void Color_next(Color* unit, int inNumSamples) {
     int r = *unit -> mIntInBuf[0];
     int g = *unit -> mIntInBuf[1];
@@ -95,8 +156,7 @@ void Symm8_next(Symm8* unit, int inNumSamples) {
             if (x >= y) {
                 *(outputLine + x) = *(inputLine + x);
             } else {
-                *(outputLine + x) = unit->inputImage->pixel(y,
-                                                            x); //*(inputLine + (unit->inputImage->width() >> 1) - x);
+                *(outputLine + x) = unit->inputImage->pixel(y, x);
             }
         }
     }
