@@ -12,8 +12,8 @@ timertester timerTest;
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    //MainWindow w;
 
+    //MainWindow w;
     //w.setBaseSize(QSize(800, 840));
     //w.show();
 

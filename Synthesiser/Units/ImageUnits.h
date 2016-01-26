@@ -27,9 +27,21 @@ struct CopyImageVeryFast: public Unit {
 };
 void CopyImageVeryFast_Ctor(CopyImageVeryFast* unit);
 
+struct ClearImage: public Unit {
+
+};
+void ClearImage_Ctor(ClearImage* unit);
+
+struct ClearImageFast: public Unit {
+
+};
+
+void ClearImageFast_Ctor(ClearImageFast* unit);
+
 struct AlphaBlend: public Unit {
     QImage *inputImageUnder, *inputImageOver, *outputImage;
 };
+
 void AlphaBlend_Ctor(AlphaBlend* unit);
 int blendHelper(double ca, double aa, double cb, double ab);
 

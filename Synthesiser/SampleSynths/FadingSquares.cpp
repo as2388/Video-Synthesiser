@@ -62,9 +62,13 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     rectOutputImage->fill(qRgba(0, 0, 0, 0));
     QImage** rectOutImageBuffer = new QImage*[1];
     rectOutImageBuffer[0] = rectOutputImage;
-    Rectangle* rectangle = new Rectangle();
-    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, rectInImageBuffer, rectOutImageBuffer);
-    Rectangle_Ctor(rectangle);
+    RectFast* rectangle = new RectFast();
+    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, NULL, rectOutImageBuffer);
+    RectFast_Ctor(rectangle);
+
+    ClearImage* clear = new ClearImage();
+    Unit_Ctor(clear, world, NULL, NULL, NULL, NULL, rectOutImageBuffer, NULL);
+    ClearImage_Ctor(clear);
 
     Draw* draw = new Draw();
     int** drawInFloatBuffer = new int*[1];
@@ -72,12 +76,13 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     Unit_Ctor(draw, world, NULL, NULL, drawInFloatBuffer, NULL, rectOutImageBuffer, NULL);
     Draw_Ctor(draw);
 
-    synth -> mNumberOfUnits = 5;
+    synth -> mNumberOfUnits = 6;
     synth -> mUnits = new Unit*[synth -> mNumberOfUnits];
 
-    synth -> mUnits[0] = line;
-    synth -> mUnits[1] = fi;
-    synth -> mUnits[2] = color;
-    synth -> mUnits[3] = rectangle;
-    synth -> mUnits[4] = draw;
+    synth -> mUnits[0] = clear;
+    synth -> mUnits[1] = line;
+    synth -> mUnits[2] = fi;
+    synth -> mUnits[3] = color;
+    synth -> mUnits[4] = rectangle;
+    synth -> mUnits[5] = draw;
 }

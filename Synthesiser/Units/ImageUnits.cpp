@@ -5,6 +5,7 @@
 
 void Rectangle_next(Rectangle* unit, int inNumSamples) {
     unit -> copier -> drawImage(QPoint(0, 0), *(unit -> inputImage));
+    //memcpy(unit->outputImage->bits(), unit->inputImage->bits(), (size_t) unit->inputImage->bytesPerLine() * unit->inputImage->height());
 
     int iX = int(ZIN0(0));
     int iY = int(ZIN0(1));
@@ -34,7 +35,7 @@ void RectFast_next(RectFast* unit, int inNumSamples) {
     int iY = int(ZIN0(1));
     int iWidth = int(ZIN0(2));
     int iHeight = int(ZIN0(3));
-    int iColor = *unit -> mIntInBuf[0];
+    int iColor = *unit->mIntInBuf[0];
     QImage* output = unit->mImageOutBuf[0];
 
     for (int y = iY; y < iY + iHeight; y++) {
@@ -88,6 +89,23 @@ void CopyImageVeryFast_next(CopyImageVeryFast* unit) {
 
 void CopyImageVeryFast_Ctor(CopyImageVeryFast* unit) {
     SETCALC(CopyImageVeryFast_next);
+}
+
+void ClearImage_next(ClearImage* unit) {
+    unit->mImageInBuf[0]->fill(qRgba(0, 0, 0, 0));
+}
+
+void ClearImage_Ctor(ClearImage* unit) {
+    SETCALC(ClearImage_next);
+}
+
+void ClearImageFast_next(ClearImageFast* unit) {
+    QImage* image = unit->mImageInBuf[0];
+    memset(image->bits(), 0, (size_t) image->bytesPerLine() * image->height());
+}
+
+void ClearImageFast_Ctor(ClearImageFast* unit) {
+    SETCALC(ClearImageFast_next);
 }
 
 void Color_next(Color* unit, int inNumSamples) {

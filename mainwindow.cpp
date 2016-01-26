@@ -68,7 +68,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceDisplayedImage()));
     timer->start(50);
 
-    frameTimer->start();
+    //frameTimer->start();
+
+    //this->advanceDisplayedImage();
 }
 
 void MainWindow::time_ugen_draw() {
@@ -325,21 +327,21 @@ bool add = true;
 void MainWindow::advanceDisplayedImage() {
     frameTimer -> restart();
 
-    for (int i = 0; i < (add ? 1 : 2); i++) {
+    for (int i = 0; i < 1000; i++) {
         FadingSquares *node = new FadingSquares();
 
-        int** intParams = new int*[3];
+        int **intParams = new int *[3];
         intParams[0] = new int(int(randf(80, 255))); // R
         intParams[1] = new int(int(randf(80, 255))); // G
         intParams[2] = new int(int(randf(80, 255))); // B
         intParams[3] = new int(1); // Image buffer to write to
 
-        float** floatParams = new float*[5];
+        float **floatParams = new float *[5];
         floatParams[0] = new float(randf(0, 400 - 80)); // x
         floatParams[1] = new float(randf(0, 400 - 80)); // y
         // Move to upper-right half if necessary by mirroring over y = - x
         if (*floatParams[0] < *floatParams[1]) {
-            float* temp = floatParams[0];
+            float *temp = floatParams[0];
             floatParams[0] = floatParams[1];
             floatParams[1] = temp;
         }
@@ -349,17 +351,17 @@ void MainWindow::advanceDisplayedImage() {
         Synth_Ctor(node, world, floatParams, intParams);
         FadingSquares_Ctor(node);
         graph->appendSibling(node);
+
+        //add = !add;
+
+        imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
+        imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
+
+        world->graph->calc();
     }
-    add = !add;
+        printf("%d\n", frameTimer->elapsed());
 
-    imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
-    imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
-
-    //printf("%d\n", world -> graph -> countNodes());
-    world->graph->calc();
     this->update();
-
-    printf("%d\n", frameTimer->elapsed());
 }
 
 MainWindow::~MainWindow()

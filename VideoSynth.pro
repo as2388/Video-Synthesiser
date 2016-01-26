@@ -17,8 +17,13 @@ QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-TARGET = Tutorial
+TARGET = VideoSynthApp
 TEMPLATE = app
+
+QMAKE_CXXFLAGS_RELEASE -= -O2
+QMAKE_CXXFLAGS_RELEASE += -O3
+QMAKE_CXXFLAGS_DEBUG -= -O2
+QMAKE_CXXFLAGS_DEBUG += -O3
 
 
 SOURCES += main.cpp\
@@ -44,7 +49,8 @@ HEADERS  += mainwindow.h \
     Graph/Graph.h \
     Synthesiser/SampleSynths/FadingSquares.h \
     Synthesiser/SampleSynths/Kaleidoscope.h \
-    Evaluation/UnitEvaluator.h
+    Evaluation/UnitEvaluator.h \
+    Evaluation/L2Eval.h
 
 FORMS    += mainwindow.ui
 
