@@ -16,6 +16,7 @@ public:
     QPainter** mDisplayBuffers;
     QImage** mImageBuffers;
     int mNumDisplayBuffers;
+    QImage** mUserImages;
     Graph* graph;
 };
 

@@ -121,6 +121,27 @@ void Color_Ctor(Color* unit) {
     SETCALC(Color_next);
 }
 
+void CopyRegion_next(CopyRegion* unit) {
+    int iX = int(ZIN0(0));
+    int iY = int(ZIN0(1));
+    int iWidth = int(ZIN0(2));
+    int iHeight = int(ZIN0(3));
+    int alpha = int(ZIN0(4));
+    QImage* input = unit->mImageInBuf[0];
+    QImage* output = unit->mImageOutBuf[0];
+
+    for (int y = iY; y < iY + iHeight; y++) {
+        uint *inputLine = (uint *) input->scanLine(y);
+        uint *outputLine = (uint *) output->scanLine(y);
+        for (int x = iX; x < iX + iWidth; x++) {
+            *(outputLine + x) = (*(inputLine + x) & (~(0xFF << 24))) | (alpha << 24);
+        }
+    }
+}
+void CopyRegion_Ctor(CopyRegion* unit) {
+    SETCALC(CopyRegion_next);
+}
+
 void FloatToInt_next(FloatToInt* unit, int inNumSamples) {
     *unit -> mIntOutBuf[0] = int(*unit -> mFloatInBuf[0]);
 }

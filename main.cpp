@@ -13,11 +13,17 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    //MainWindow w;
-    //w.setBaseSize(QSize(800, 840));
-    //w.show();
+    //qDebug() << qRgba(255, 255, 255, 127);
+    //qDebug() << (qRgba(255, 255, 255, 127) & (~(0xFF << 24)));
+    //qDebug() << ((qRgba(255, 255, 255, 127) & (~(0xFF << 24))) | (char) 255);
 
-    L2Eval().timeEverything();
+    //((*(outputLine + x)) & ~(0xFF)) | alpha;
+
+    MainWindow w;
+    w.setBaseSize(QSize(800, 640));
+    w.show();
+
+    //L2Eval().timeEverything();
 
     //UnitEvaluator().evaluateRectangle();
     //UnitEvaluator().evaluateSymm8();

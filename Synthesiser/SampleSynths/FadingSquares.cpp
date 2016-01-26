@@ -49,22 +49,28 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     float* rectY = synth->mFloatParams[1];
     float* rectWidth = synth->mFloatParams[2];
     float* rectHeight = synth->mFloatParams[3];
-    float** rectInFloatBuffer = new float*[4];
+    float** rectInFloatBuffer = new float*[5];
     rectInFloatBuffer[0] = rectX;
     rectInFloatBuffer[1] = rectY;
     rectInFloatBuffer[2] = rectWidth;
     rectInFloatBuffer[3] = rectHeight;
-    QImage *rectInputImage = new QImage(400, 400, QImage::Format_ARGB32); // TODO: How am I going to handle image size?
+    rectInFloatBuffer[4] = lineOutFloatBuffer[0];
+    QImage *rectInputImage = new QImage(800, 600, QImage::Format_ARGB32); // TODO: How am I going to handle image size?
     rectInputImage->fill(qRgba(0, 0, 0, 0));
     QImage** rectInImageBuffer = new QImage*[1];
     rectInImageBuffer[0] = rectInputImage;
-    QImage *rectOutputImage = new QImage(400, 400, QImage::Format_ARGB32);
+    QImage *rectOutputImage = new QImage(800, 600, QImage::Format_ARGB32);
     rectOutputImage->fill(qRgba(0, 0, 0, 0));
     QImage** rectOutImageBuffer = new QImage*[1];
     rectOutImageBuffer[0] = rectOutputImage;
-    RectFast* rectangle = new RectFast();
-    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, NULL, rectOutImageBuffer);
-    RectFast_Ctor(rectangle);
+    CopyRegion* copyRegion = new CopyRegion();
+    QImage** inPayload = new QImage*[1];
+    inPayload[0] = world->mUserImages[0];
+    Unit_Ctor(copyRegion, world, rectInFloatBuffer, NULL, NULL, NULL, inPayload, rectOutImageBuffer);
+    CopyRegion_Ctor(copyRegion);
+//    RectFast* rectangle = new RectFast();
+//    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, NULL, rectOutImageBuffer);
+//    RectFast_Ctor(rectangle);
 
     ClearImage* clear = new ClearImage();
     Unit_Ctor(clear, world, NULL, NULL, NULL, NULL, rectOutImageBuffer, NULL);
@@ -83,6 +89,6 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     synth -> mUnits[1] = line;
     synth -> mUnits[2] = fi;
     synth -> mUnits[3] = color;
-    synth -> mUnits[4] = rectangle;
+    synth -> mUnits[4] = copyRegion;
     synth -> mUnits[5] = draw;
 }

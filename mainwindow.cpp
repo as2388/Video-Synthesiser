@@ -8,6 +8,7 @@
 #include <Synthesiser/Synth.h>
 #include <Synthesiser/SampleSynths/FadingSquares.h>
 #include <Synthesiser/SampleSynths/Kaleidoscope.h>
+#include <UserGraphics/UserGraphics.h>
 
 QImage** imageBuffer = new QImage*[2];
 //Synth** synths;
@@ -31,8 +32,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     srand(time(0));
 
-    imageBuffer[0] = this->ugen_blankImagePointer(800, 800);
-    imageBuffer[1] = this->ugen_blankImagePointer(800, 800);
+    imageBuffer[0] = this->ugen_blankImagePointer(800, 600);
+    imageBuffer[1] = this->ugen_blankImagePointer(800, 600);
     imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
     imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
 
@@ -43,11 +44,14 @@ MainWindow::MainWindow(QWidget *parent) :
     world -> mDisplayBuffers[1] = new QPainter(imageBuffer[1]);
     world -> mNumDisplayBuffers = 2;
 
+    world -> mUserImages = new QImage*[5];
+    UserGraphics().loadUserGraphics(world->mUserImages, 3, 0);
+
     Graph* g = new Graph();
     g->setFirstChild(graph);
     Kaleidoscope* kaleidoscope = new Kaleidoscope();
     Kaleidoscope_Ctor(kaleidoscope, world);
-    graph->appendSibling(kaleidoscope);
+    //graph->appendSibling(kaleidoscope);
     world->graph->setFirstChild(g);
 
 //    for (int i = 0; i < 15; i++) {
@@ -327,25 +331,25 @@ bool add = true;
 void MainWindow::advanceDisplayedImage() {
     frameTimer -> restart();
 
-    for (int i = 0; i < 1000; i++) {
+    //for (int i = 0; i < 1000; i++) {
         FadingSquares *node = new FadingSquares();
 
         int **intParams = new int *[3];
         intParams[0] = new int(int(randf(80, 255))); // R
         intParams[1] = new int(int(randf(80, 255))); // G
         intParams[2] = new int(int(randf(80, 255))); // B
-        intParams[3] = new int(1); // Image buffer to write to
+        intParams[3] = new int(0); // Image buffer to write to
 
         float **floatParams = new float *[5];
-        floatParams[0] = new float(randf(0, 400 - 80)); // x
-        floatParams[1] = new float(randf(0, 400 - 80)); // y
+        floatParams[0] = new float(randf(0, 800 - 200)); // x
+        floatParams[1] = new float(randf(0, 600 - 200)); // y
         // Move to upper-right half if necessary by mirroring over y = - x
-        if (*floatParams[0] < *floatParams[1]) {
+        /*if (*floatParams[0] < *floatParams[1]) {
             float *temp = floatParams[0];
             floatParams[0] = floatParams[1];
             floatParams[1] = temp;
-        }
-        floatParams[2] = new float(randf(35, 80)); // width
+        } */
+        floatParams[2] = new float(randf(70, 200)); // width
         floatParams[3] = floatParams[2]; // height
         floatParams[4] = new float(15); // length of fade in frames
         Synth_Ctor(node, world, floatParams, intParams);
@@ -355,11 +359,12 @@ void MainWindow::advanceDisplayedImage() {
         //add = !add;
 
         imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
-        imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
+        //imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
 
         world->graph->calc();
-    }
-        printf("%d\n", frameTimer->elapsed());
+    //}
+
+    printf("%d\n", frameTimer->elapsed());
 
     this->update();
 }

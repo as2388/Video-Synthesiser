@@ -50,6 +50,11 @@ struct Color: public Unit {
 };
 void Color_Ctor(Color* unit);
 
+struct CopyRegion: public Unit {
+
+};
+void CopyRegion_Ctor(CopyRegion* unit);
+
 struct Symm8: public Unit {
     QImage *inputImage, *outputImage;
 };
