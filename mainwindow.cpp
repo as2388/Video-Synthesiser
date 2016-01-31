@@ -9,6 +9,7 @@
 #include <Synthesiser/SampleSynths/FadingSquares.h>
 #include <Synthesiser/SampleSynths/Kaleidoscope.h>
 #include <UserGraphics/UserGraphics.h>
+#include <qlabel.h>
 
 QImage** imageBuffer = new QImage*[2];
 //Synth** synths;
@@ -16,6 +17,7 @@ int* timeToReconstruct = new int[5];
 World* world;
 Graph* graph = new Graph();
 QElapsedTimer* frameTimer = new QElapsedTimer();
+QLabel* imageLabel;
 
 float randf(float a, float b) {
     float random = ((float) rand()) / (float) RAND_MAX;
@@ -31,6 +33,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
     srand(time(0));
+
+    imageLabel = new QLabel(this);
+    imageLabel->setMinimumSize(800, 600);
+    imageLabel->show();
+    setCentralWidget(imageLabel);
 
     imageBuffer[0] = this->ugen_blankImagePointer(800, 600);
     imageBuffer[1] = this->ugen_blankImagePointer(800, 600);
@@ -54,27 +61,10 @@ MainWindow::MainWindow(QWidget *parent) :
     //graph->appendSibling(kaleidoscope);
     world->graph->setFirstChild(g);
 
-//    for (int i = 0; i < 15; i++) {
-//        Synth* node = new Synth();
-//        Synth_Ctor(node, world);
-//        world->graph->insertGraphAfter(node, world->graph);
-//    }
-
-    //synths = new Synth*[15];
-    //for (int i = 0; i < 15; i++) {
-    //    synths[i] = new Synth();
-    //    Synth_Ctor(synths[i], world);
-    //    timeToReconstruct[i] = i;
-    //}
-
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceDisplayedImage()));
     timer->start(50);
-
-    //frameTimer->start();
-
-    //this->advanceDisplayedImage();
 }
 
 void MainWindow::time_ugen_draw() {
@@ -327,11 +317,12 @@ QImage MainWindow::ugen_draw(QImage input) {
  * @brief MainWindow::advanceDisplayedImage Advance the pointer to the image to be rendered
  * by one position, and force a window repaint.
  */
-bool add = true;
+int add = 15;
 void MainWindow::advanceDisplayedImage() {
     frameTimer -> restart();
 
     //for (int i = 0; i < 1000; i++) {
+    //if (add == 0) {
         FadingSquares *node = new FadingSquares();
 
         int **intParams = new int *[3];
@@ -356,7 +347,10 @@ void MainWindow::advanceDisplayedImage() {
         FadingSquares_Ctor(node);
         graph->appendSibling(node);
 
-        //add = !add;
+    //    add = 15;
+    //}
+
+    //    add--;
 
         imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
         //imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
@@ -364,7 +358,7 @@ void MainWindow::advanceDisplayedImage() {
         world->graph->calc();
     //}
 
-    printf("%d\n", frameTimer->elapsed());
+    //printf("%d\n", frameTimer->elapsed());
 
     this->update();
 }
@@ -378,11 +372,12 @@ MainWindow::~MainWindow()
  * @brief MainWindow::paintEvent Draws the image which is currently to be displayed to the screen.
  * @param event
  */
-void MainWindow::paintEvent(QPaintEvent *event)
-{
+
+void MainWindow::paintEvent(QPaintEvent *event) {
     // Draw the image to the screen.
     QPainter painter(this);
-    painter.drawImage(QPointF(0, 10), *imageBuffer[0]);
+    //painter.setBackgroundMode(Qt::BGMode::OpaqueMode);
+    painter.drawPixmap(QPoint(0, 10), QPixmap::fromImage(*imageBuffer[0]));
     painter.end();
 }
 
