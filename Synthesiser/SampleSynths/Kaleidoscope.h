@@ -5,8 +5,7 @@
 #ifndef VIDEOSYNTH_KALEIDOSCOPE_H
 #define VIDEOSYNTH_KALEIDOSCOPE_H
 
-
-#include <World.h>
+#include <World/World.h>
 #include <Synthesiser/Synth.h>
 
 struct Kaleidoscope: public Synth {

@@ -3,6 +3,20 @@
 #include <QPainter>
 #include <QtGui>
 
+void AcquireImage_next(AcquireImage* unit) {
+    unit->mImageOutBuf[*unit->mIntInBuf[0]] = unit->mWorld->acquirePooledImage();
+}
+void AcquireImage_Ctor(AcquireImage* unit) {
+    SETCALC(AcquireImage_next);
+}
+
+void ReleaseImage_next(ReleaseImage* unit) {
+    unit->mWorld->releasePooledImage(unit->mImageInBuf[*unit->mIntInBuf[0]]);
+}
+void ReleaseImage_Ctor(ReleaseImage* unit) {
+    SETCALC(ReleaseImage_next);
+}
+
 void Rectangle_next(Rectangle* unit, int inNumSamples) {
     unit -> copier -> drawImage(QPoint(0, 0), *(unit -> inputImage));
     //memcpy(unit->outputImage->bits(), unit->inputImage->bits(), (size_t) unit->inputImage->bytesPerLine() * unit->inputImage->height());
@@ -227,13 +241,11 @@ void Symm8_Ctor(Symm8* unit) {
 }
 
 void Draw_next(Draw* unit, int inNumSamples) {
-    unit->mWorld->mDisplayBuffers[*unit->mIntInBuf[0]]->drawImage(QPoint(0, 0), *(unit -> inputImage));
+    unit->mWorld->mDisplayBuffers[*unit->mIntInBuf[0]]->drawImage(QPoint(0, 0), *(unit->mImageInBuf[0]));
 }
 
 void Draw_Ctor(Draw* unit) {
     SETCALC(Draw_next);
-
-    unit -> inputImage = unit -> mImageInBuf[0];
 }
 
 void Look_next(Look* unit, int inNumSamples) {

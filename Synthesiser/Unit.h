@@ -6,7 +6,7 @@
 #define VIDEOSYNTH_UNIT_H
 
 #include <qimage.h>
-#include <World.h>
+#include <World/World.h>
 
 typedef void (*UnitCalcFunc)(struct Unit *unitToCompute, int inNumSamples);
 struct Rate {

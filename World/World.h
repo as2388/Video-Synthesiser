@@ -8,19 +8,22 @@
 
 #include <qimage.h>
 #include <Graph/Graph.h>
+#include "ImagePool.h"
 
 class World {
+private:
+    ImagePool* imagePool;
 public:
-    World();
+    World(int poolSize, int imgWidth, int imgHeight);
 
     QPainter** mDisplayBuffers;
     QImage** mImageBuffers;
     int mNumDisplayBuffers;
     QImage** mUserImages;
     Graph* graph;
+
+    QImage* acquirePooledImage();
+    void releasePooledImage(QImage* image);
 };
-
-
-
 
 #endif //VIDEOSYNTH_WORLD_H

@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "World.h"
 #include <QtGui>
 #include <stdio.h>
 #include <Synthesiser/Unit.h>
@@ -10,6 +9,8 @@
 #include <Synthesiser/SampleSynths/Kaleidoscope.h>
 #include <UserGraphics/UserGraphics.h>
 #include <qlabel.h>
+#include <World/World.h>
+#include <Synthesiser/SampleSynths/FadingCopier.h>
 
 QImage** imageBuffer = new QImage*[2];
 //Synth** synths;
@@ -44,7 +45,7 @@ MainWindow::MainWindow(QWidget *parent) :
     imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
     imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
 
-    world = new World();
+    world = new World(10, 800, 600);
     world -> mImageBuffers = imageBuffer;
     world -> mDisplayBuffers = new QPainter*[2];
     world -> mDisplayBuffers[0] = new QPainter(imageBuffer[0]);
@@ -71,19 +72,22 @@ MainWindow::MainWindow(QWidget *parent) :
  * @brief MainWindow::advanceDisplayedImage Advance the pointer to the image to be rendered
  * by one position, and force a window repaint.
  */
-int add = 15;
+int add = 0;
+float img = 0.0;
 void MainWindow::advanceDisplayedImage() {
     frameTimer -> restart();
 
     //for (int i = 0; i < 1000; i++) {
     //if (add == 0) {
-        FadingSquares *node = new FadingSquares();
+    img += 0.01;
+        FadingCopier *node = new FadingCopier();
 
-        int **intParams = new int *[3];
+        int **intParams = new int *[5];
         intParams[0] = new int(int(randf(80, 255))); // R
         intParams[1] = new int(int(randf(80, 255))); // G
         intParams[2] = new int(int(randf(80, 255))); // B
         intParams[3] = new int(0); // Image buffer to write to
+        intParams[4] = new int(randf(0, 1) + img); // User image to read from
 
         float **floatParams = new float *[5];
         floatParams[0] = new float(randf(0, 800 - 200)); // x
@@ -98,7 +102,7 @@ void MainWindow::advanceDisplayedImage() {
         floatParams[3] = floatParams[2]; // height
         floatParams[4] = new float(15); // length of fade in frames
         Synth_Ctor(node, world, floatParams, intParams);
-        FadingSquares_Ctor(node);
+        FadingCopier_Ctor(node);
         graph->appendSibling(node);
 
     //    add = 15;

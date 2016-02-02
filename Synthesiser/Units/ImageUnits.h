@@ -1,5 +1,15 @@
 #include <Synthesiser/Unit.h>
 
+struct AcquireImage: public Unit {
+
+};
+void AcquireImage_Ctor(AcquireImage* unit);
+
+struct ReleaseImage: public Unit {
+
+};
+void ReleaseImage_Ctor(ReleaseImage* unit);
+
 struct Rectangle: public Unit {
     QImage *inputImage, *outputImage;
     QPainter *copier;
@@ -67,7 +77,7 @@ void FloatToInt_Ctor(FloatToInt* unit);
 
 struct Draw: public Unit
 {
-    QImage *inputImage;
+
 };
 void Draw_Ctor(Draw* draw);
 

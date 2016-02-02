@@ -3,6 +3,7 @@
 //
 
 #include <qpainter.h>
+#include <World/World.h>
 #include "Unit.h"
 
 void Unit_Ctor(Unit* unit, World* world,
