@@ -11,12 +11,14 @@
 #include <qlabel.h>
 #include <World/World.h>
 #include <Synthesiser/SampleSynths/FadingCopier.h>
+#include <Synthesiser/SampleSynths/Amplitude.h>
 
 QImage** imageBuffer = new QImage*[2];
 World* world;
 Graph* graph = new Graph();
 QElapsedTimer* frameTimer = new QElapsedTimer();
-QLabel* imageLabel;
+Amplitude* ampSynth;
+float **floatParams = new float *[4];
 
 float randf(float a, float b) {
     float random = ((float) rand()) / (float) RAND_MAX;
@@ -33,12 +35,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     srand(time(0));
 
-    imageLabel = new QLabel(this);
-    imageLabel->setMinimumSize(800, 600);
-    imageLabel->show();
-    setCentralWidget(imageLabel);
-
-    world = new World(5, 800, 600);
+    world = new World(4, 800, 20);
     imageBuffer[0] = world->acquirePooledImage();
     imageBuffer[1] = world->acquirePooledImage();
     imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
@@ -49,14 +46,24 @@ MainWindow::MainWindow(QWidget *parent) :
     world->mDisplayBuffers[1] = new QPainter(imageBuffer[1]);
     world->mNumDisplayBuffers = 2;
 
-    world -> mUserImages = new QImage*[5];
-    UserGraphics().loadUserGraphics(world->mUserImages, 3, 0);
+    //world -> mUserImages = new QImage*[5];
+    //UserGraphics().loadUserGraphics(world->mUserImages, 3, 0);
 
     Graph* g = new Graph();
     g->setFirstChild(graph);
-    Kaleidoscope* kaleidoscope = new Kaleidoscope();
-    Kaleidoscope_Ctor(kaleidoscope, world);
+    floatParams[0] = new float(0); // x
+    floatParams[1] = new float(3); // y
+    floatParams[2] = new float(500); // width
+    floatParams[3] = new float(14); // height
+    ampSynth = new Amplitude();
+    Synth_Ctor(ampSynth, world, floatParams, NULL);
+    Amplitude_Ctor(ampSynth);
+    graph->appendSibling(ampSynth);
+
+    //Kaleidoscope* kaleidoscope = new Kaleidoscope();
+    //Kaleidoscope_Ctor(kaleidoscope, world);
     //graph->appendSibling(kaleidoscope);
+
     world->graph->setFirstChild(g);
 
     // Set a timer to update the displayed image every 1s
@@ -69,50 +76,19 @@ MainWindow::MainWindow(QWidget *parent) :
  * @brief MainWindow::advanceDisplayedImage Advance the pointer to the image to be rendered
  * by one position, and force a window repaint.
  */
-int add = 0;
-float img = 0.0;
+float wth = 0;
 void MainWindow::advanceDisplayedImage() {
     frameTimer -> restart();
 
-    //for (int i = 0; i < 1000; i++) {
-    //if (add == 0) {
-    img += 0.01;
-        FadingCopier *node = new FadingCopier();
+    float ampVal = randf(0, 300);
 
-        int **intParams = new int *[5];
-        intParams[0] = new int(int(randf(80, 255))); // R
-        intParams[1] = new int(int(randf(80, 255))); // G
-        intParams[2] = new int(int(randf(80, 255))); // B
-        intParams[3] = new int(0); // Image buffer to write to
-        intParams[4] = new int(randf(0, 1) + img); // User image to read from
+    *floatParams[0] = imageBuffer[0]->width() / 2 - ampVal;
+    *floatParams[2] = ampVal * 2;
 
-        float **floatParams = new float *[5];
-        floatParams[0] = new float(randf(0, 800 - 200)); // x
-        floatParams[1] = new float(randf(0, 600 - 200)); // y
-        // Move to upper-right half if necessary by mirroring over y = - x
-        /*if (*floatParams[0] < *floatParams[1]) {
-            float *temp = floatParams[0];
-            floatParams[0] = floatParams[1];
-            floatParams[1] = temp;
-        } */
-        floatParams[2] = new float(randf(70, 200)); // width
-        floatParams[3] = floatParams[2]; // height
-        floatParams[4] = new float(15); // length of fade in frames
-        Synth_Ctor(node, world, floatParams, intParams);
-        FadingCopier_Ctor(node);
-        graph->appendSibling(node);
+    wth += 1;
 
-    //    add = 15;
-    //}
-
-    //    add--;
-
-        imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
-
-        world->graph->calc();
-    //}
-
-    //printf("%d\n", frameTimer->elapsed());
+    imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
+    world->graph->calc();
 
     this->update();
 }
@@ -130,7 +106,7 @@ MainWindow::~MainWindow()
 void MainWindow::paintEvent(QPaintEvent *event) {
     // Draw the image to the screen.
     QPainter painter(this);
-    painter.drawPixmap(QPoint(0, 10), QPixmap::fromImage(*imageBuffer[0]));
+    painter.drawPixmap(QPoint(0, 15), QPixmap::fromImage(*imageBuffer[0]));
     painter.end();
 }
 
