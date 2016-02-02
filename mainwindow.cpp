@@ -13,8 +13,6 @@
 #include <Synthesiser/SampleSynths/FadingCopier.h>
 
 QImage** imageBuffer = new QImage*[2];
-//Synth** synths;
-int* timeToReconstruct = new int[5];
 World* world;
 Graph* graph = new Graph();
 QElapsedTimer* frameTimer = new QElapsedTimer();
@@ -40,17 +38,16 @@ MainWindow::MainWindow(QWidget *parent) :
     imageLabel->show();
     setCentralWidget(imageLabel);
 
-    imageBuffer[0] = new QImage(800, 600, QImage::Format_ARGB32);
-    imageBuffer[1] = new QImage(800, 600, QImage::Format_ARGB32);
+    world = new World(5, 800, 600);
+    imageBuffer[0] = world->acquirePooledImage();
+    imageBuffer[1] = world->acquirePooledImage();
     imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
     imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
-
-    world = new World(10, 800, 600);
-    world -> mImageBuffers = imageBuffer;
-    world -> mDisplayBuffers = new QPainter*[2];
-    world -> mDisplayBuffers[0] = new QPainter(imageBuffer[0]);
-    world -> mDisplayBuffers[1] = new QPainter(imageBuffer[1]);
-    world -> mNumDisplayBuffers = 2;
+    world->mImageBuffers = imageBuffer;
+    world->mDisplayBuffers = new QPainter*[2];
+    world->mDisplayBuffers[0] = new QPainter(imageBuffer[0]);
+    world->mDisplayBuffers[1] = new QPainter(imageBuffer[1]);
+    world->mNumDisplayBuffers = 2;
 
     world -> mUserImages = new QImage*[5];
     UserGraphics().loadUserGraphics(world->mUserImages, 3, 0);
@@ -111,7 +108,6 @@ void MainWindow::advanceDisplayedImage() {
     //    add--;
 
         imageBuffer[0]->fill(qRgba(0, 0, 0, 255));
-        //imageBuffer[1]->fill(qRgba(0, 0, 0, 255));
 
         world->graph->calc();
     //}
@@ -134,7 +130,6 @@ MainWindow::~MainWindow()
 void MainWindow::paintEvent(QPaintEvent *event) {
     // Draw the image to the screen.
     QPainter painter(this);
-    //painter.setBackgroundMode(Qt::BGMode::OpaqueMode);
     painter.drawPixmap(QPoint(0, 10), QPixmap::fromImage(*imageBuffer[0]));
     painter.end();
 }
