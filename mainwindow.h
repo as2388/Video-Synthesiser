@@ -19,6 +19,7 @@ private:
     void paintEvent(QPaintEvent *event);
 public slots:
     void advanceDisplayedImage();
+    void updateAmplitude(float newAmplitude);
 };
 
 #endif // MAINWINDOW_H
