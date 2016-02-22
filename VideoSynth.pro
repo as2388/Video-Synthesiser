@@ -13,6 +13,13 @@ macx {
     LIBS += -lboost_chrono -lboost_system
 }
 
+QMAKE_CXXFLAGS += -std=c++11
+_BOOST_PATH = /usr/local
+INCLUDEPATH += "$${_BOOST_PATH}/include/"
+INCLUDEPATH += "$${_BOOST_PATH}/libs/"
+#LIBS += -L$${_BOOST_PATH}/lib/
+#LIBS += -lboost_chrono -lboost_system -lboost_atomic
+
 QT       += core gui
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -31,7 +38,8 @@ SOURCES += main.cpp\
     timertester.cpp \
     Synthesiser/Unit.cpp \
     Synthesiser/Synth.cpp \
-    World.cpp \
+    World/World.cpp \
+    World/ImagePool.cpp \
     Synthesiser/Units/ImageUnits.cpp \
     Synthesiser/Units/FloatUnits.cpp \
     Graph/Graph.cpp \
@@ -43,7 +51,8 @@ HEADERS  += mainwindow.h \
     timertester.h \
     Synthesiser/Unit.h \
     Synthesiser/Synth.h \
-    World.h \
+    World/World.h \
+    World/ImagePool.h \
     Synthesiser/Units/ImageUnits.h \
     Synthesiser/Units/FloatUnits.h \
     Graph/Graph.h \
