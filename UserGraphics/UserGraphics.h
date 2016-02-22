@@ -14,7 +14,7 @@ public:
         for (char i = 0; i < bufferSize; i++) {
             QString dir = QString("/Users/alexander/Documents/partii-project/code/VideoSynth/UserGraphics/");
             dir.append(QString::number(i)).append(".jpg");
-            qDebug() << dir;
+            //qDebug() << dir;
             buffer[i + startPosition] = new QImage(dir);
         }
     }
