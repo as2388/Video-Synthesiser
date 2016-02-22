@@ -31,6 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    imageLabel = new QLabel(this);
+
     srand(time(0));
 
     imageLabel = new QLabel(this);
@@ -62,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(advanceDisplayedImage()));
-    timer->start(50);
+    timer->start(100);
 }
 
 /**
@@ -72,19 +74,19 @@ MainWindow::MainWindow(QWidget *parent) :
 int add = 0;
 float img = 0.0;
 void MainWindow::advanceDisplayedImage() {
-    frameTimer -> restart();
+    //frameTimer -> restart();
 
     //for (int i = 0; i < 1000; i++) {
     //if (add == 0) {
     img += 0.01;
-        FadingCopier *node = new FadingCopier();
+        FadingSquares *node = new FadingSquares();
 
         int **intParams = new int *[5];
         intParams[0] = new int(int(randf(80, 255))); // R
         intParams[1] = new int(int(randf(80, 255))); // G
         intParams[2] = new int(int(randf(80, 255))); // B
         intParams[3] = new int(0); // Image buffer to write to
-        intParams[4] = new int(randf(0, 1) + img); // User image to read from
+        //intParams[4] = new int(randf(0, 1) + img); // User image to read from
 
         float **floatParams = new float *[5];
         floatParams[0] = new float(randf(0, 800 - 200)); // x
@@ -99,7 +101,7 @@ void MainWindow::advanceDisplayedImage() {
         floatParams[3] = floatParams[2]; // height
         floatParams[4] = new float(15); // length of fade in frames
         Synth_Ctor(node, world, floatParams, intParams);
-        FadingCopier_Ctor(node);
+        FadingSquares_Ctor(node);
         graph->appendSibling(node);
 
     //    add = 15;
@@ -132,6 +134,8 @@ void MainWindow::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.drawPixmap(QPoint(0, 10), QPixmap::fromImage(*imageBuffer[0]));
     painter.end();
+
+    //imageLabel->setPixmap(QPixmap::fromImage(*imageBuffer[0]));
 }
 
 

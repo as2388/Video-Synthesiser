@@ -7,8 +7,26 @@
 #include "FadingSquares.h"
 
 void FadingSquares_Ctor(FadingSquares* synth) {
-    World* world = synth->mWorld;
+    World* world = synth -> mWorld;
 
+    // Acquire/release required images
+    int* id = new int(0);
+    int** idBuffer = new int*[1];
+    idBuffer[0] = id;
+    QImage** resources = new QImage*[1];
+    AcquireImage* acquirer = new AcquireImage();
+    Unit_Ctor(acquirer, world, NULL, NULL, idBuffer, NULL, NULL, resources);
+    AcquireImage_Ctor(acquirer);
+    ReleaseImage* releaser = new ReleaseImage();
+    Unit_Ctor(releaser, world, NULL, NULL, idBuffer, NULL, resources, NULL);
+    ReleaseImage_Ctor(releaser);
+
+    // Reset the acquired image
+    ClearImage* clear = new ClearImage();
+    Unit_Ctor(clear, world, NULL, NULL, NULL, NULL, resources, NULL);
+    ClearImage_Ctor(clear);
+
+    // Line from 255 to 0 over n frames
     float* lineStart = new float(255);
     float* lineEnd = new float(0);
     float* lineSteps = synth->mFloatParams[4];
@@ -23,7 +41,7 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     Unit_Ctor(line, world, lineInFloatBuffer, lineOutFloatBuffer, NULL, NULL, NULL, NULL);
     Line_Ctor(line);
 
-    int * colorA = new int(0);
+    int* colorA = new int(0);
     int** colorABuffer = new int*[1];
     colorABuffer[0] = colorA;
     FloatToInt* fi = new FloatToInt();
@@ -45,6 +63,7 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     Unit_Ctor(color, world, NULL, NULL, colorInIntBuffer, colorOutIntBuffer, NULL, NULL);
     Color_Ctor(color);
 
+    // Draw a rectangle to the image
     float* rectX = synth->mFloatParams[0];
     float* rectY = synth->mFloatParams[1];
     float* rectWidth = synth->mFloatParams[2];
@@ -54,41 +73,28 @@ void FadingSquares_Ctor(FadingSquares* synth) {
     rectInFloatBuffer[1] = rectY;
     rectInFloatBuffer[2] = rectWidth;
     rectInFloatBuffer[3] = rectHeight;
-    rectInFloatBuffer[4] = lineOutFloatBuffer[0];
-    QImage *rectInputImage = new QImage(800, 600, QImage::Format_ARGB32); // TODO: How am I going to handle image size?
-    rectInputImage->fill(qRgba(0, 0, 0, 0));
-    QImage** rectInImageBuffer = new QImage*[1];
-    rectInImageBuffer[0] = rectInputImage;
-    QImage *rectOutputImage = new QImage(800, 600, QImage::Format_ARGB32);
-    rectOutputImage->fill(qRgba(0, 0, 0, 0));
-    QImage** rectOutImageBuffer = new QImage*[1];
-    rectOutImageBuffer[0] = rectOutputImage;
-    CopyRegion* copyRegion = new CopyRegion();
-    QImage** inPayload = new QImage*[1];
-    inPayload[0] = world->mUserImages[0];
-    Unit_Ctor(copyRegion, world, rectInFloatBuffer, NULL, NULL, NULL, inPayload, rectOutImageBuffer);
-    CopyRegion_Ctor(copyRegion);
-//    RectFast* rectangle = new RectFast();
-//    Unit_Ctor(rectangle, world, rectInFloatBuffer, NULL, colorOutIntBuffer, NULL, NULL, rectOutImageBuffer);
-//    RectFast_Ctor(rectangle);
+    int** intInBuffer = new int*[1];
+    intInBuffer[0] = colorOutIntBuffer[0];
+    RectFast* rect = new RectFast();
+    Unit_Ctor(rect, world, rectInFloatBuffer, NULL, intInBuffer, NULL, NULL, resources);
+    RectFast_Ctor(rect);
 
-    ClearImage* clear = new ClearImage();
-    Unit_Ctor(clear, world, NULL, NULL, NULL, NULL, rectOutImageBuffer, NULL);
-    ClearImage_Ctor(clear);
-
+    // Output
     Draw* draw = new Draw();
     int** drawInFloatBuffer = new int*[1];
     drawInFloatBuffer[0] = synth->mIntParams[3];
-    Unit_Ctor(draw, world, NULL, NULL, drawInFloatBuffer, NULL, rectOutImageBuffer, NULL);
+    Unit_Ctor(draw, world, NULL, NULL, drawInFloatBuffer, NULL, resources, NULL);
     Draw_Ctor(draw);
 
-    synth -> mNumberOfUnits = 6;
+    synth -> mNumberOfUnits = 8;
     synth -> mUnits = new Unit*[synth -> mNumberOfUnits];
 
-    synth -> mUnits[0] = clear;
-    synth -> mUnits[1] = line;
-    synth -> mUnits[2] = fi;
-    synth -> mUnits[3] = color;
-    synth -> mUnits[4] = copyRegion;
-    synth -> mUnits[5] = draw;
+    synth -> mUnits[0] = acquirer;
+    synth -> mUnits[1] = clear;
+    synth -> mUnits[2] = line;
+    synth -> mUnits[3] = fi;
+    synth -> mUnits[4] = color;
+    synth -> mUnits[5] = rect;
+    synth -> mUnits[6] = draw;
+    synth -> mUnits[7] = releaser;
 }
