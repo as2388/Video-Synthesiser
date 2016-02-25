@@ -253,11 +253,7 @@ void Symm8_next(Symm8* unit, int inNumSamples) {
         uint *upperLine = (uint *) unit->outputImage->scanLine(y);
         uint *lowerLine = (uint *) unit->outputImage->scanLine(unit->outputImage->width() - 1 - y);
 
-        memcpy(lowerLine, upperLine, unit->inputImage->bytesPerLine());
-
-        /*for (int x = 0; x < unit->inputImage->width(); x++) {
-            *(lowerLine + x) = *(upperLine + x);
-        }*/
+        memcpy(lowerLine, upperLine, (size_t) unit->inputImage->bytesPerLine());
     }
 
 }

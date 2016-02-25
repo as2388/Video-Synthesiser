@@ -18,7 +18,7 @@ Kaleidoscope* kaleidoscope;
 ImageGenerator::ImageGenerator() {
     srand(time(0));
 
-    world = new World(20, 800, 800);
+    world = new World(20, 800, 600);
     world->mImageBuffers = new QImage*[2];
     world->mImageBuffers[0] = world->acquirePooledImage();
     world->mImageBuffers[1] = world->acquirePooledImage();
@@ -33,7 +33,7 @@ ImageGenerator::ImageGenerator() {
     kaleidoscope = new Kaleidoscope();
     Kaleidoscope_Ctor(kaleidoscope, world);
     //g->setFirstChild(kaleidoscope);
-    world->graph->setFirstChild(kaleidoscope);
+    world->graph->setFirstChild(graph);
 }
 
 float randf(float a, float b) {
@@ -59,28 +59,28 @@ void ImageGenerator::run() {
             intParams[0] = new int(int(randf(80, 255))); // R
             intParams[1] = new int(int(randf(80, 255))); // G
             intParams[2] = new int(int(randf(80, 255))); // B
-            intParams[3] = new int(1); // Image buffer to write to
+            intParams[3] = new int(0); // Image buffer to write to
             intParams[4] = new int(randf(0, 1) + img); // User image to read from
 
             float **floatParams = new float *[5];
-            floatParams[0] = new float(randf(0, 400 - 95)); // x
-            floatParams[1] = new float(randf(0, 400 - 95)); // y
+            floatParams[0] = new float(randf(0, 800 - 250)); // x
+            floatParams[1] = new float(randf(0, 600 - 250)); // y
             // Move to upper-right half if necessary by mirroring over y = - x
             if (*floatParams[0] < *floatParams[1]) {
                 float *temp = floatParams[0];
                 floatParams[0] = floatParams[1];
                 floatParams[1] = temp;
             }
-            floatParams[2] = new float(randf(35, 95)); // width
+            floatParams[2] = new float(randf(70, 250)); // width
             floatParams[3] = floatParams[2]; // height
             floatParams[4] = new float(15); // length of fade in frames
             Synth_Ctor(node, world, floatParams, intParams);
             //FadingCopier_Ctor(node);
             FadingSquares_Ctor(node);
-            if (kaleidoscope->firstChild) {
-                kaleidoscope->firstChild->appendSibling(node);
+            if (graph->firstChild) {
+                graph->firstChild->appendSibling(node);
             } else {
-                kaleidoscope->setFirstChild(node);
+                graph->setFirstChild(node);
             }
         //}
 
