@@ -21,6 +21,8 @@ inline void Synth_Compute_Unit(Unit* unit)
 }
 
 void Synth::calc() {
+    Graph::calc();
+
     for (int i = 0; i < this -> mNumberOfUnits; i++) {
         Synth_Compute_Unit(this -> mUnits[i]);
 
@@ -28,8 +30,6 @@ void Synth::calc() {
             this->mDone = true;
         }
     }
-
-    Graph::calc();
 
     if (this->mDone) {
         Graph::remove();

@@ -16,9 +16,10 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = 0);
     void setQueue(boost::lockfree::queue<QImage*> *q) {this->queue = q;}
-    void setWorld(World* w) {this->world = w;}
+    void setWorld(World* w) {this->world = w; this->nextOutput = w->acquirePooledImage();}
     ~MainWindow();
 private:
+    QImage* nextOutput;
     boost::lockfree::queue<QImage*> *queue;
     World* world;
     Ui::MainWindow *ui;

@@ -13,13 +13,36 @@ void AcquireImage_Ctor(AcquireImage* unit) {
 void ReleaseImage_next(ReleaseImage* unit) {
     unit->mWorld->releasePooledImage(unit->mImageInBuf[*unit->mIntInBuf[0]]);
 }
+
+void Read_next(Read* unit) {
+    QImage* output = unit->mImageOutBuf[0];
+    QImage* input = unit->mWorld->mImageBuffers[*unit->mIntInBuf[0]];
+
+    memcpy(output->bits(), input->bits(), (size_t) (input->bytesPerLine() * input->height()));
+}
+
+void Read_Ctor(Read* unit) {
+    SETCALC(Read_next);
+}
+
+void Nuke_next(Nuke* unit) {
+    QImage* input = unit->mImageInBuf[0];
+    QImage* output = unit->mWorld->mImageBuffers[0];
+
+    unit->mWorld->releasePooledImage(output);
+    *output = *input;
+}
+
+void Nuke_Ctor(Nuke* unit) {
+    SETCALC(Nuke_next);
+}
+
 void ReleaseImage_Ctor(ReleaseImage* unit) {
     SETCALC(ReleaseImage_next);
 }
 
 void Rectangle_next(Rectangle* unit, int inNumSamples) {
     unit -> copier -> drawImage(QPoint(0, 0), *(unit -> inputImage));
-    //memcpy(unit->outputImage->bits(), unit->inputImage->bits(), (size_t) unit->inputImage->bytesPerLine() * unit->inputImage->height());
 
     int iX = int(ZIN0(0));
     int iY = int(ZIN0(1));
@@ -201,6 +224,9 @@ void AlphaBlend_Ctor(AlphaBlend* unit) {
 }
 
 void Symm8_next(Symm8* unit, int inNumSamples) {
+    unit->inputImage = unit->mImageInBuf[0];
+    unit->outputImage = unit->mImageOutBuf[0];
+
     // Copy the upper right triangle to the output image's top left quadrant.
     for (int y = 0; y < unit->outputImage->width() >> 1; y++) {
         uint *outputLine = (uint *) unit->outputImage->scanLine(y);
@@ -223,25 +249,27 @@ void Symm8_next(Symm8* unit, int inNumSamples) {
     }
 
     // Mirror the upper half to the lower half
-    for (int y = 0; y < unit->outputImage->width() >> 1; y++) {
+    for (int y = 0; y < unit->outputImage->height() >> 1; y++) {
         uint *upperLine = (uint *) unit->outputImage->scanLine(y);
-        uint *lowerLine = (uint *) unit->outputImage->scanLine(unit->outputImage->width() - y);
-        for (int x = 0; x < unit->inputImage->width(); x++) {
+        uint *lowerLine = (uint *) unit->outputImage->scanLine(unit->outputImage->width() - 1 - y);
+
+        memcpy(lowerLine, upperLine, unit->inputImage->bytesPerLine());
+
+        /*for (int x = 0; x < unit->inputImage->width(); x++) {
             *(lowerLine + x) = *(upperLine + x);
-        }
+        }*/
     }
 
 }
 
 void Symm8_Ctor(Symm8* unit) {
     SETCALC(Symm8_next);
-
-    unit->inputImage = unit->mImageInBuf[0];
-    unit->outputImage = unit->mImageOutBuf[0];
 }
 
 void Draw_next(Draw* unit, int inNumSamples) {
-    unit->mWorld->mDisplayBuffers[*unit->mIntInBuf[0]]->drawImage(QPoint(0, 0), *(unit->mImageInBuf[0]));
+    QPainter painter(unit->mWorld->mImageBuffers[*unit->mIntInBuf[0]]);
+
+    painter.drawImage(QPoint(0, 0), *(unit->mImageInBuf[0]));
 }
 
 void Draw_Ctor(Draw* unit) {

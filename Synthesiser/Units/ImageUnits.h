@@ -22,6 +22,16 @@ struct RectFast: public Unit {
 };
 void RectFast_Ctor(RectFast* unit);
 
+struct Read: public Unit {
+
+};
+void Read_Ctor(Read* unit);
+
+struct Nuke: public Unit {
+
+};
+void Nuke_Ctor(Nuke* unit);
+
 struct CopyImage: public Unit {
 
 };

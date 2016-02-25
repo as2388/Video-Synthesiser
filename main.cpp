@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     MainWindow w;
     w.setQueue(&boostQueue);
     w.setWorld(ig->world);
-    w.setBaseSize(QSize(800, 640));
+    w.setBaseSize(QSize(800, 840));
     w.show();
 
     genThread->start(QThread::TimeCriticalPriority);

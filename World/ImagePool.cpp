@@ -16,6 +16,7 @@ ImagePool::ImagePool(int poolSize, int imgWidth, int imgHeight) {
 QImage* ImagePool::acquireImage() {
     QImage* out = this->freePool.top();
     this->freePool.pop();
+    //qDebug() << "returning" << out;
     return out;
 }
 

@@ -16,7 +16,6 @@ private:
 public:
     World(int poolSize, int imgWidth, int imgHeight);
 
-    QPainter** mDisplayBuffers;
     QImage** mImageBuffers;
     int mNumDisplayBuffers;
     QImage** mUserImages;
