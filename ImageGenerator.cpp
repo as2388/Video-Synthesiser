@@ -18,7 +18,7 @@ Kaleidoscope* kaleidoscope;
 ImageGenerator::ImageGenerator() {
     srand(time(0));
 
-    world = new World(20, 800, 600);
+    world = new World(20, 800, 450);
     world->mImageBuffers = new QImage*[2];
     world->mImageBuffers[0] = world->acquirePooledImage();
     world->mImageBuffers[1] = world->acquirePooledImage();
@@ -27,7 +27,7 @@ ImageGenerator::ImageGenerator() {
     world->mNumDisplayBuffers = 2;
 
     world -> mUserImages = new QImage*[5];
-    UserGraphics().loadUserGraphics(world->mUserImages, 3, 0);
+    UserGraphics().loadUserGraphics(world->mUserImages, 4, 0);
 
     Graph* g = new Graph();
     kaleidoscope = new Kaleidoscope();
@@ -52,31 +52,32 @@ void ImageGenerator::run() {
     while (true) {
         //for (int z = 0; z < 2; z++) {
         img+=0.02;
-            //FadingCopier *node = new FadingCopier();
-            FadingSquares* node = new FadingSquares();
+            FadingCopier *node = new FadingCopier();
+            //FadingSquares* node = new FadingSquares();
 
             int **intParams = new int *[5];
             intParams[0] = new int(int(randf(80, 255))); // R
             intParams[1] = new int(int(randf(80, 255))); // G
             intParams[2] = new int(int(randf(80, 255))); // B
             intParams[3] = new int(0); // Image buffer to write to
-            intParams[4] = new int(randf(0, 1) + img); // User image to read from
+            intParams[4] = new int(int((randf(0.3, 0.7) + img)) % 4); // User image to read from
 
             float **floatParams = new float *[5];
-            floatParams[0] = new float(randf(0, 800 - 250)); // x
-            floatParams[1] = new float(randf(0, 600 - 250)); // y
+            floatParams[2] = new float(randf(70, 300)); // width
+            floatParams[3] = floatParams[2]; // height
+            floatParams[0] = new float(randf(0, 800 - *floatParams[2])); // x
+            floatParams[1] = new float(randf(0, 450 - *floatParams[3])); // y
             // Move to upper-right half if necessary by mirroring over y = - x
-            if (*floatParams[0] < *floatParams[1]) {
+            /*if (*floatParams[0] < *floatParams[1]) {
                 float *temp = floatParams[0];
                 floatParams[0] = floatParams[1];
                 floatParams[1] = temp;
-            }
-            floatParams[2] = new float(randf(70, 250)); // width
-            floatParams[3] = floatParams[2]; // height
+            }*/
+
             floatParams[4] = new float(15); // length of fade in frames
             Synth_Ctor(node, world, floatParams, intParams);
-            //FadingCopier_Ctor(node);
-            FadingSquares_Ctor(node);
+            FadingCopier_Ctor(node);
+            //FadingSquares_Ctor(node);
             if (graph->firstChild) {
                 graph->firstChild->appendSibling(node);
             } else {
