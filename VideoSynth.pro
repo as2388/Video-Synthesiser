@@ -59,7 +59,8 @@ HEADERS  += mainwindow.h \
     Synthesiser/SampleSynths/FadingSquares.h \
     Synthesiser/SampleSynths/Kaleidoscope.h \
     Evaluation/UnitEvaluator.h \
-    Evaluation/L2Eval.h
+    Evaluation/L2Eval.h \
+    Evaluation/FinalEvaluator.h
 
 FORMS    += mainwindow.ui
 

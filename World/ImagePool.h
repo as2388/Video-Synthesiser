@@ -10,7 +10,8 @@
 
 class ImagePool {
 private:
-    QImage** pool;
+    int imgWidth;
+    int imgHeight;
     std::stack<QImage*> freePool;
 public:
     ImagePool(int poolSize, int imgWidth, int imgHeight);

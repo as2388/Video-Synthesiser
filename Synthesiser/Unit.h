@@ -21,10 +21,6 @@ struct Unit {
     QImage **mImageInBuf, **mImageOutBuf;
     struct Rate *mRate;
     UnitCalcFunc mCalcFunc;
-
-    ~Unit() {
-
-    }
 };
 
 void Unit_Ctor(Unit* unit, World* world,
