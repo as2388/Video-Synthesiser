@@ -45,7 +45,9 @@ SOURCES += main.cpp\
     Graph/Graph.cpp \
     Synthesiser/SampleSynths/FadingSquares.cpp \
     Synthesiser/SampleSynths/Kaleidoscope.cpp \
-    Evaluation/UnitEvaluator.cpp
+    Evaluation/UnitEvaluator.cpp \
+    Synthesiser/SampleSynths/MovingSquare.cpp \
+    ImageGenerator.cpp
 
 HEADERS  += mainwindow.h \
     timertester.h \
@@ -60,7 +62,9 @@ HEADERS  += mainwindow.h \
     Synthesiser/SampleSynths/Kaleidoscope.h \
     Evaluation/UnitEvaluator.h \
     Evaluation/L2Eval.h \
-    Evaluation/FinalEvaluator.h
+    Evaluation/FinalEvaluator.h \
+    Synthesiser/SampleSynths/MovingSquare.h \
+    ImageGenerator.h
 
 FORMS    += mainwindow.ui
 

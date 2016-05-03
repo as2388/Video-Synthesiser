@@ -25,6 +25,14 @@ void Read_Ctor(Read* unit) {
     SETCALC(Read_next);
 }
 
+void ReadRef_next(ReadRef* unit) {
+    unit->mImageOutBuf[0] = unit->mWorld->mImageBuffers[*unit->mIntInBuf[0]];
+}
+
+void ReadRef_Ctor(ReadRef* unit) {
+    SETCALC(ReadRef_next);
+}
+
 void Nuke_next(Nuke* unit) {
     QImage* input = unit->mImageInBuf[0];
     QImage* output = unit->mWorld->mImageBuffers[0];
@@ -187,6 +195,14 @@ void FloatToInt_Ctor(FloatToInt* unit) {
     SETCALC(FloatToInt_next);
 }
 
+void IntToFloat_next(IntToFloat* unit, int inNumSamples) {
+    *unit -> mFloatOutBuf[0] = int(*unit -> mIntInBuf[0]);
+}
+
+void IntToFloat_Ctor(IntToFloat* unit) {
+    SETCALC(IntToFloat_next);
+}
+
 void AlphaBlend_next(AlphaBlend* unit, int inNumSamples) {
     for (int x = 0; x < unit -> inputImageUnder -> width(); x++) {
         for (int y = 0; y < unit -> inputImageUnder -> height(); y++) {
@@ -251,7 +267,7 @@ void Symm8_next(Symm8* unit, int inNumSamples) {
     // Mirror the upper half to the lower half
     for (int y = 0; y < unit->outputImage->height() >> 1; y++) {
         uint *upperLine = (uint *) unit->outputImage->scanLine(y);
-        uint *lowerLine = (uint *) unit->outputImage->scanLine(unit->outputImage->width() - 1 - y);
+        uint *lowerLine = (uint *) unit->outputImage->scanLine(unit->outputImage->height() - 1 - y);
 
         memcpy(lowerLine, upperLine, (size_t) unit->inputImage->bytesPerLine());
     }
@@ -270,6 +286,14 @@ void Draw_next(Draw* unit, int inNumSamples) {
 
 void Draw_Ctor(Draw* unit) {
     SETCALC(Draw_next);
+}
+
+void DrawOver_next(DrawOver* unit) {
+
+}
+
+void DrawOver_Ctor(DrawOver* unit) {
+    SETCALC(DrawOver_next);
 }
 
 void Look_next(Look* unit, int inNumSamples) {

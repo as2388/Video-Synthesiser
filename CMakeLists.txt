@@ -36,7 +36,7 @@ set(SOURCE_FILES
         Synthesiser/SampleSynths/Kaleidoscope.h
         Evaluation/UnitEvaluator.cpp
         Evaluation/UnitEvaluator.h
-        Evaluation/L2Eval.h UserGraphics/UserGraphics.h World/ImagePool.cpp World/ImagePool.h Synthesiser/SampleSynths/FadingCopier.cpp Synthesiser/SampleSynths/FadingCopier.h ImageGenerator.cpp ImageGenerator.h Evaluation/FinalEvaluator.h)
+        Evaluation/L2Eval.h UserGraphics/UserGraphics.h World/ImagePool.cpp World/ImagePool.h Synthesiser/SampleSynths/FadingCopier.cpp Synthesiser/SampleSynths/FadingCopier.h ImageGenerator.cpp ImageGenerator.h Evaluation/FinalEvaluator.h Synthesiser/SampleSynths/MovingSquare.cpp Synthesiser/SampleSynths/MovingSquare.h)
 
 add_executable(VideoSynth ${SOURCE_FILES})
 

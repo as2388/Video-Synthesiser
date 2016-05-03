@@ -7,10 +7,11 @@
 #include <World/World.h>
 #include <UserGraphics/UserGraphics.h>
 #include <Synthesiser/SampleSynths/Kaleidoscope.h>
-#include <Synthesiser/SampleSynths/FadingSquares.h>
 #include "ImageGenerator.h"
+#include <Synthesiser/SampleSynths/MovingSquare.h>
+#include <sys/time.h>
+#include <qtextstream.h>
 #include <iostream>
-#include <Synthesiser/SampleSynths/FadingCopier.h>
 
 Graph* graph = new Graph();
 Kaleidoscope* kaleidoscope;
@@ -18,7 +19,7 @@ Kaleidoscope* kaleidoscope;
 ImageGenerator::ImageGenerator() {
     srand(time(0));
 
-    world = new World(20, 800, 450);
+    world = new World(20, 800, 600);
     world->mImageBuffers = new QImage*[2];
     world->mImageBuffers[0] = world->acquirePooledImage();
     world->mImageBuffers[1] = world->acquirePooledImage();
@@ -32,8 +33,8 @@ ImageGenerator::ImageGenerator() {
     Graph* g = new Graph();
     kaleidoscope = new Kaleidoscope();
     Kaleidoscope_Ctor(kaleidoscope, world);
-    //g->setFirstChild(kaleidoscope);
-    world->graph->setFirstChild(graph);
+    g->setFirstChild(kaleidoscope);
+    world->graph->setFirstChild(kaleidoscope);
 }
 
 float randf(float a, float b) {
@@ -44,65 +45,91 @@ float randf(float a, float b) {
 }
 
 float img = 0;
+long int timeCompute(timeval startTime, timeval endTime) {
+    long int start = (startTime.tv_sec) * 1000 + (startTime.tv_usec) / 1000;
+    long int end = (endTime.tv_sec) * 1000 + (endTime.tv_usec) / 1000;
+
+    return end - start;
+}
+
+int first = 0;
 void ImageGenerator::run() {
     QImage* nextOutput;
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmissing-noreturn"
     while (true) {
-        //for (int z = 0; z < 2; z++) {
-        img+=0.02;
-            FadingCopier *node = new FadingCopier();
-            //FadingSquares* node = new FadingSquares();
+        struct timeval startTime, endTime;
+        gettimeofday(&startTime, NULL);
 
-            int **intParams = new int *[5];
+        //for (int i = 0; i < 1000; i++) {
+            MovingSquare *node = new MovingSquare();
+        int **intParams = new int *[4];
+        float **floatParams = new float *[7];
+
+
             intParams[0] = new int(int(randf(80, 255))); // R
             intParams[1] = new int(int(randf(80, 255))); // G
             intParams[2] = new int(int(randf(80, 255))); // B
-            intParams[3] = new int(0); // Image buffer to write to
-            intParams[4] = new int(int((randf(0.3, 0.7) + img)) % 4); // User image to read from
+            intParams[3] = new int(1); // Image buffer to write to
 
-            float **floatParams = new float *[5];
-            floatParams[2] = new float(randf(70, 300)); // width
-            floatParams[3] = floatParams[2]; // height
-            floatParams[0] = new float(randf(0, 800 - *floatParams[2])); // x
-            floatParams[1] = new float(randf(0, 450 - *floatParams[3])); // y
-            // Move to upper-right half if necessary by mirroring over y = - x
-            /*if (*floatParams[0] < *floatParams[1]) {
-                float *temp = floatParams[0];
-                floatParams[0] = floatParams[1];
-                floatParams[1] = temp;
-            }*/
+            floatParams[0] = new float(randf(40, 65)); // width
+            floatParams[1] = floatParams[0]; // height
+            floatParams[2] = new float(500); // xstart
+            floatParams[3] = new float(randf(0, 500)); // xend
+            floatParams[4] = new float(400); // ystart
+            floatParams[5] = new float(1); // yend
+            floatParams[6] = new float(20.0);
 
-            floatParams[4] = new float(15); // length of fade in frames
-            Synth_Ctor(node, world, floatParams, intParams);
-            FadingCopier_Ctor(node);
-            //FadingSquares_Ctor(node);
-            if (graph->firstChild) {
-                graph->firstChild->appendSibling(node);
-            } else {
-                graph->setFirstChild(node);
+
+            /*if (first == 0) {
+                intParams[0] = new int(255); // R
+                intParams[1] = new int(255); // G
+                intParams[2] = new int(255); // B
+                intParams[3] = new int(0); // Image buffer to write to
+
+                floatParams[0] = new float(300); // width
+                floatParams[1] = new float(200); // height
+                floatParams[2] = new float(20); // xstart
+                floatParams[3] = new float(400); // xend
+                floatParams[4] = new float(100); // ystart
+                floatParams[5] = new float(200); // yend
+                floatParams[6] = new float(3); // steps*/
+
+                Synth_Ctor(node, world, floatParams, intParams);
+                MovingSquare_Ctor(node);
+                if (kaleidoscope->firstChild) {
+                    kaleidoscope->firstChild->appendSibling(node);
+                } else {
+                    kaleidoscope->setFirstChild(node);
+                    //world->graph->setFirstChild(node);
+                }
+            //}
+        first++;
+
+            for (int i = 0; i < world->mNumDisplayBuffers; i++) {
+                world->mImageBuffers[i]->fill(qRgba(0, 0, 0, 255));
             }
+
+            world->graph->calc();
+
+            nextOutput = world->acquirePooledImage();
+            memcpy(nextOutput->bits(), world->mImageBuffers[0]->bits(),
+                   (size_t) world->mImageBuffers[0]->bytesPerLine() * world->mImageBuffers[0]->height());
+
+            char* path = new char[1000];
+            sprintf(path, "/Users/alexander/Documents/partii-project/submittables/figs/cover%d.png", first);
+            nextOutput->save(path, "PNG");
+            //world->releasePooledImage(nextOutput);
         //}
-
-        //    add = 15;
-        //}
-
-        //    add--;
-
-        for (int i = 0; i < world->mNumDisplayBuffers; i++) {
-            world->mImageBuffers[i]->fill(qRgba(0, 0, 0, 255));
-        }
-
-        world->graph->calc();
-
-        nextOutput = world->acquirePooledImage();
-        memcpy(nextOutput->bits(), world->mImageBuffers[0]->bits(),
-               (size_t) world->mImageBuffers[0]->bytesPerLine() * world->mImageBuffers[0]->height());
+        gettimeofday(&endTime, NULL);
+        std::cout << timeCompute(startTime, endTime) << "\n";
         //std::cout << "pushing:" << nextOutput << "\n";
         while (!(queue->bounded_push(nextOutput))){
             //usleep(2000);
         }
     }
+
+
 #pragma clang diagnostic pop
 }

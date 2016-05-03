@@ -27,6 +27,11 @@ struct Read: public Unit {
 };
 void Read_Ctor(Read* unit);
 
+struct ReadRef: public Unit {
+
+};
+void ReadRef_Ctor(ReadRef* unit);
+
 struct Nuke: public Unit {
 
 };
@@ -85,11 +90,21 @@ struct FloatToInt: public Unit{
 };
 void FloatToInt_Ctor(FloatToInt* unit);
 
+struct IntToFloat: public Unit {
+
+};
+void IntToFloat_Ctor(IntToFloat* unit);
+
 struct Draw: public Unit
 {
 
 };
 void Draw_Ctor(Draw* draw);
+
+struct DrawOver: public Unit {
+
+};
+void DrawOver_Ctor(DrawOver* draw);
 
 struct Look: public Unit {
     QImage* outputImage;

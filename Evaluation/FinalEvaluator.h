@@ -11,12 +11,14 @@
 #include <qtextstream.h>
 #include <qfile.h>
 #include <QTimer>
+#include <Synthesiser/Units/FloatUnits.h>
 
 class FinalEvaluator : public QObject {
 Q_OBJECT
 private:
-    int maxSize = 1000;
+    int maxSize = 10;
     int count = 1000;
+    int highCount = 1000000;
 
     long int timeCompute(timeval startTime, timeval endTime) {
         long int start = (startTime.tv_sec) * 1000 + (startTime.tv_usec) / 1000;
@@ -30,7 +32,7 @@ private:
     int logicalTime = 0;
     struct timeval driftStartTime;
     QTimer *timer;
-    //QString path = "/Users/alexander/Documents/partii-project/submittables/figs/";
+    //QString path = "/Users/alexander/Documents/partii-project/submittables/figs2/";
     QString path = "/home/pi/figs/";
 public:
     void evaluateRectangleFast() {
@@ -196,12 +198,283 @@ public:
         }
     }
 
-    void evaluateColor() {
+    void evaluateCopyRegion() {
+        QString filename = path + "copyregion.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
 
+        for (int size = 1; size <= maxSize; size++) {
+            QImage *inputImage = new QImage(size, size, QImage::Format_ARGB32);
+            inputImage->fill(qRgba(0, 0, 0, 0));
+
+            QImage *outputImage = new QImage(size, size, QImage::Format_ARGB32);
+            inputImage->fill(qRgba(0, 0, 0, 0));
+
+            QImage **inPayload = new QImage *[0];
+            inPayload[0] = inputImage;
+
+            QImage **outPayload = new QImage *[0];
+            outPayload[0] = outputImage;
+
+            float **inData = new float*[5];
+            inData[0] = new float(0);
+            inData[1] = new float(0);
+            inData[2] = new float(size);
+            inData[3] = new float(size);
+            inData[4] = new float(255);
+
+            CopyRegion *unit = new CopyRegion();
+            Unit_Ctor(unit, NULL, inData, NULL, NULL, NULL, inPayload, outPayload);
+            CopyRegion_Ctor(unit);
+
+            struct timeval startTime, endTime;
+            gettimeofday(&startTime, NULL);
+            for (int i = 0; i < count; i++) {
+                unit->mCalcFunc(unit, 1);
+            }
+            gettimeofday(&endTime, NULL);
+
+            delete inputImage;
+            delete[] inPayload;
+            delete outputImage;
+            delete[] outPayload;
+
+            qDebug() << "5. Copy Region" << size << "," << timeCompute(startTime, endTime);
+            stream << size << "," << timeCompute(startTime, endTime) << endl;
+        }
     }
 
-    void evaluateFloats() {
+    void evaluateAlphaBlend() {
+        QString filename = path + "alphablend.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
 
+        for (int size = 1; size <= maxSize; size++) {
+            QImage *inputImage = new QImage(size, size, QImage::Format_ARGB32);
+            inputImage->fill(qRgba(0, 0, 0, 0));
+
+            QImage *inputImage2 = new QImage(size, size, QImage::Format_ARGB32);
+            inputImage2->fill(qRgba(0, 0, 0, 0));
+
+            QImage *outputImage = new QImage(size, size, QImage::Format_ARGB32);
+            inputImage->fill(qRgba(0, 0, 0, 0));
+
+            QImage **inPayload = new QImage *[1];
+            inPayload[0] = inputImage;
+            inPayload[1] = inputImage2;
+
+            QImage **outPayload = new QImage *[0];
+            outPayload[0] = outputImage;
+
+            AlphaBlend *unit = new AlphaBlend();
+            Unit_Ctor(unit, NULL, NULL, NULL, NULL, NULL, inPayload, outPayload);
+            AlphaBlend_Ctor(unit);
+
+            struct timeval startTime, endTime;
+            gettimeofday(&startTime, NULL);
+            for (int i = 0; i < count; i++) {
+                unit->mCalcFunc(unit, 1);
+            }
+            gettimeofday(&endTime, NULL);
+
+            delete inputImage;
+            delete[] inPayload;
+            delete outputImage;
+            delete[] outPayload;
+
+            qDebug() << "6. Alphablend" << size << "," << timeCompute(startTime, endTime);
+            stream << size << "," << timeCompute(startTime, endTime) << endl;
+        }
+    }
+
+    void evaluateColor() {
+        QString filename = path + "color.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
+
+        int **in = new int*[3];
+        in[0] = new int(127);
+        in[1] = new int(127);
+        in[2] = new int(127);
+        in[3] = new int(127);
+
+        int **out = new int*[0];
+        out[0] = new int(0);
+
+        Color *unit = new Color();
+        Unit_Ctor(unit, NULL, NULL, NULL, in, out, NULL, NULL);
+        Color_Ctor(unit);
+
+        struct timeval startTime, endTime;
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit->mCalcFunc(unit, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "7. Color"  << "," << timeCompute(startTime, endTime);
+        stream << timeCompute(startTime, endTime) << endl;
+    }
+
+    void evaluateAcquireReleaseImage() {
+        QString filename = path + "acquirerelease.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
+
+        World world = World(10, maxSize, maxSize);
+
+        int **in = new int*[1];
+        in[0] = new int(0);
+
+        QImage *outputImage = new QImage(maxSize, maxSize, QImage::Format_ARGB32);
+        outputImage->fill(qRgba(0, 0, 0, 0));
+
+        QImage **outPayload = new QImage *[1];
+        outPayload[0] = outputImage;
+
+        AcquireImage *unit = new AcquireImage();
+        Unit_Ctor(unit, &world, NULL, NULL, in, NULL, NULL, outPayload);
+        AcquireImage_Ctor(unit);
+
+        ReleaseImage *unit2 = new ReleaseImage();
+        Unit_Ctor(unit2, &world, NULL, NULL, in, NULL, outPayload, NULL);
+        ReleaseImage_Ctor(unit2);
+
+        for (int i = 0; i < highCount; i++) {
+            unit2->mCalcFunc(unit2, 1);
+        }
+        for (int i = 0; i < highCount; i++) {
+            unit->mCalcFunc(unit, 1);
+        }
+        struct timeval startTime, endTime;
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit2->mCalcFunc(unit2, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "8. Release Image"  << "," << timeCompute(startTime, endTime);
+        stream << "release" << timeCompute(startTime, endTime) << endl;
+
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit->mCalcFunc(unit, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "9. Acquire Image"  << "," << timeCompute(startTime, endTime);
+        stream << "acquire" << timeCompute(startTime, endTime) << endl;
+    }
+
+    void evaluateReadRef() {
+        QString filename = path + "readref.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
+        
+        World world = World(20, 800, 600);
+        world.mImageBuffers = new QImage*[2];
+        world.mImageBuffers[0] = world.acquirePooledImage();
+        world.mImageBuffers[1] = world.acquirePooledImage();
+        world.mImageBuffers[0]->fill(qRgba(0, 0, 0, 255));
+        world.mImageBuffers[1]->fill(qRgba(0, 0, 0, 255));
+        world.mNumDisplayBuffers = 2;
+
+        int **in = new int*[1];
+        in[0] = new int(0);
+
+        QImage *outputImage = new QImage(maxSize, maxSize, QImage::Format_ARGB32);
+        outputImage->fill(qRgba(0, 0, 0, 0));
+
+        QImage **outPayload = new QImage *[1];
+        outPayload[0] = outputImage;
+
+        ReadRef *unit = new ReadRef();
+        Unit_Ctor(unit, &world, NULL, NULL, in, NULL, NULL, outPayload);
+        ReadRef_Ctor(unit);
+
+        struct timeval startTime, endTime;
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit->mCalcFunc(unit, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "10. ReadRef"  << "," << timeCompute(startTime, endTime);
+        stream << timeCompute(startTime, endTime) << endl;
+    }
+
+    void evaluateLine() {
+        QString filename = path + "line.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
+
+        float **in = new float*[2];
+        in[0] = new float(0);
+        in[1] = new float(highCount);
+        in[2] = new float(highCount);
+
+        float **out = new float*[0];
+        out[0] = new float(0);
+
+        Line *unit = new Line();
+        Unit_Ctor(unit, NULL, in, out, NULL, NULL, NULL, NULL);
+        Line_Ctor(unit);
+
+        struct timeval startTime, endTime;
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit->mCalcFunc(unit, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "11. Line"  << "," << timeCompute(startTime, endTime);
+        stream << timeCompute(startTime, endTime) << endl;
+    }
+
+    void evaluateConverters() {
+        QString filename = path + "converters.csv";
+        QFile file(filename);
+        QTextStream stream(&file);
+        file.open(QIODevice::WriteOnly);
+
+        float **in = new float*[0];
+        in[0] = new float(0);
+
+        int **out = new int*[0];
+        out[0] = new int(0);
+
+        FloatToInt *unit = new FloatToInt();
+        Unit_Ctor(unit, NULL, in, NULL, NULL, out, NULL, NULL);
+        FloatToInt_Ctor(unit);
+
+        struct timeval startTime, endTime;
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit->mCalcFunc(unit, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "12. float to int"  << "," << timeCompute(startTime, endTime);
+        stream << timeCompute(startTime, endTime) << endl;
+
+        IntToFloat *unit2 = new IntToFloat();
+        Unit_Ctor(unit2, NULL, NULL, in, out, NULL, NULL, NULL);
+        IntToFloat_Ctor(unit2);
+
+        gettimeofday(&startTime, NULL);
+        for (int i = 0; i < highCount; i++) {
+            unit2->mCalcFunc(unit2, 1);
+        }
+        gettimeofday(&endTime, NULL);
+
+        qDebug() << "13. int to float"  << "," << timeCompute(startTime, endTime);
+        stream << timeCompute(startTime, endTime) << endl;
     }
 
     void evaluateDrift() {
@@ -218,12 +491,20 @@ public:
 
 public slots:
     void evaluateEverything() {
+        this->evaluateColor();
+        this->evaluateAcquireReleaseImage();
+        this->evaluateReadRef();
+        this->evaluateLine();
+        this->evaluateConverters();
+
         this->evaluateRectangleFast();
         this->evaluateImageFill();
         this->evaluateCopyImage();
         this->evaluateSymm8();
+        this->evaluateCopyRegion();
+        this->evaluateAlphaBlend();
 
-        this->evaluateDrift();
+        //this->evaluateDrift();
     }
 
     void driftUpdate() {

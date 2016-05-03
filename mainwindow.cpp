@@ -37,7 +37,7 @@ void MainWindow::paintEvent(QPaintEvent *event) {
             world->releasePooledImage(nextOutput);
             queue->pop(nextOutput);
         } else {
-            qDebug() << "frame dropped";
+            //qDebug() << "frame dropped";
         }
     }
 
