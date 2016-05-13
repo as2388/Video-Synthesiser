@@ -4,14 +4,14 @@
 #include <QtGui>
 
 void AcquireImage_next(AcquireImage* unit) {
-    unit->mImageOutBuf[*unit->mIntInBuf[0]] = unit->mWorld->acquirePooledImage();
+    unit->mImageOutBuf[0] = unit->mWorld->acquirePooledImage();
 }
 void AcquireImage_Ctor(AcquireImage* unit) {
     SETCALC(AcquireImage_next);
 }
 
 void ReleaseImage_next(ReleaseImage* unit) {
-    unit->mWorld->releasePooledImage(unit->mImageInBuf[*unit->mIntInBuf[0]]);
+    unit->mWorld->releasePooledImage(unit->mImageInBuf[0]);
 }
 
 void Read_next(Read* unit) {

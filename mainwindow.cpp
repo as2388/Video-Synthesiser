@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // Set a timer to update the displayed image every 1s
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
-    timer->start(50);
+    timer->start(100);
 }
 
 MainWindow::~MainWindow()
